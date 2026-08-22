@@ -1,7 +1,18 @@
 /**
  * POS Gateway — mandatory OpenAI + Ollama proxy with prepend-only injection.
  * Expert pattern: transparent reverse proxy (LiteLLM / Forge / Nexus middleware).
- * Fail-closed in strict mode when POS kernel files are missing.
+ *
+ * Two hard properties, split by direction:
+ *   - Prompt direction: NEVER blocked. Strict mode used to answer 503, which
+ *     made "hard" mean "your prompt fails". Now every prompt is attested and
+ *     answered; if the kernel is unhealthy the attestation is `degraded` and the
+ *     first line of the answer says so (banner.mjs).
+ *   - Claim direction: fail-closed elsewhere (tenet-check/evidence-check refuse
+ *     to certify work whose prompt has no routed attestation).
+ *
+ * Compatibility is asserted, not assumed: every upstream body passes through
+ * guardOutbound, so tools / MCP blocks / client params that POS would otherwise
+ * drop cause POS to forward the ORIGINAL body instead.
  */
 import { createServer } from "node:http";
 import { existsSync, readFileSync } from "node:fs";
@@ -9,6 +20,9 @@ import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { injectPosMessages, injectPosOllama, preserveClientPayload } from "./inject.mjs";
+import { attestPrompt } from "./attest.mjs";
+import { applyBanner, enforceBanner } from "./banner.mjs";
+import { guardOutbound } from "./compat.mjs";
 import { record } from "../scripts/audit.mjs";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
@@ -46,11 +60,36 @@ export function loadHubConfig(posRoot) {
   return JSON.parse(readFileSync(path, "utf8"));
 }
 
-function strictGate(config) {
-  if (!config.strict) return null;
-  if (!existsSync(config.routerPath)) return "PROMPT-ROUTER missing — strict gate closed";
-  if (!existsSync(join(config.posRoot, "CONSTITUTION.md"))) return "CONSTITUTION missing — strict gate closed";
+/**
+ * Kernel readiness. Returns null when healthy, else the reason the answer must
+ * be labelled degraded. This never rejects a prompt — the reason travels into
+ * the first line of the response instead.
+ */
+export function kernelGate(config) {
+  if (!existsSync(config.routerPath)) return "PROMPT-ROUTER.md missing";
+  if (!existsSync(join(config.posRoot, "CONSTITUTION.md"))) return "CONSTITUTION.md missing";
   return null;
+}
+
+function lastUserPrompt(messages = []) {
+  const m = [...messages].reverse().find((x) => x.role === "user");
+  return typeof m?.content === "string" ? m.content : JSON.stringify(m?.content ?? "");
+}
+
+/** Attest, then label the response body with the truthful first line. */
+function routeAndBanner({ prompt, surface, client, config, content }) {
+  const att = attestPrompt({ prompt, surface, client, root: config.posRoot });
+  const routed = att.state === "routed";
+  const labelled = applyBanner(content, {
+    routed,
+    reason: routed ? null : att.reason,
+    attestationId: att.id,
+    signature: att.signature,
+  });
+  // Re-run the anti-forgery check on our own output: if anything about the
+  // attestation fails to verify, the response degrades rather than lying.
+  const checked = enforceBanner(labelled, config.posRoot);
+  return { text: checked.text, attestation: att, routed: checked.routed };
 }
 
 async function readBody(req) {
@@ -98,12 +137,7 @@ export function createGatewayServer(config = loadEnforceConfig()) {
       return;
     }
 
-    const gateErr = strictGate(config);
-    if (gateErr && !req.url?.startsWith("/health")) {
-      res.writeHead(503, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: gateErr, pos: "fail-closed" }));
-      return;
-    }
+    const gateErr = kernelGate(config);
 
     if (req.url === "/health") {
       res.writeHead(200, { "Content-Type": "application/json" });
@@ -112,6 +146,8 @@ export function createGatewayServer(config = loadEnforceConfig()) {
           status: "ok",
           mode: config.mode,
           strict: config.strict,
+          kernel: gateErr ? "degraded" : "healthy",
+          kernelReason: gateErr,
           ollamaUpstream: config.ollamaUpstream,
         }),
       );
@@ -145,24 +181,48 @@ export function createGatewayServer(config = loadEnforceConfig()) {
       const model = clientBody.model || pickModel(injectedMessages, hubCfg);
       const passthrough = preserveClientPayload(clientBody);
 
-      record("pos-gateway", "chat/completions", JSON.stringify({ injected: didInject, model, tools: !!clientBody.tools }));
+      // Injection must only ever ADD. Everything the client sent (tools,
+      // tool_choice, MCP block, response_format, options) is forwarded upstream.
+      const proposed = { ...clientBody, ...passthrough, model, messages: injectedMessages, stream: false };
+      const { body: upstreamBody, violations, preserved } = guardOutbound({ ...clientBody, model, stream: false }, proposed);
+
+      record(
+        "pos-gateway",
+        "chat/completions",
+        JSON.stringify({ injected: didInject, model, tools: (clientBody.tools || []).length, compat: preserved ? "ok" : violations }),
+      );
 
       try {
-        const ollamaBody = {
-          model,
-          messages: injectedMessages,
-          stream: false,
-        };
-        const data = await forwardOllamaChat(config.ollamaUpstream, ollamaBody);
-        const content = data.message?.content || "";
+        const data = await forwardOllamaChat(config.ollamaUpstream, upstreamBody);
+        const raw = data.message?.content || "";
+        const { text: content, attestation } = routeAndBanner({
+          prompt: lastUserPrompt(clientBody.messages || []),
+          surface: "openai/chat.completions",
+          client: req.headers["user-agent"] || "unknown",
+          config,
+          content: raw,
+        });
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(
           JSON.stringify({
             id: "pos-gateway",
             object: "chat.completion",
             model,
-            choices: [{ message: { role: "assistant", content }, finish_reason: "stop" }],
-            pos: { injected: didInject, mode: config.mode },
+            choices: [
+              {
+                message: { role: "assistant", content, ...data.message?.tool_calls ? { tool_calls: data.message.tool_calls } : {} },
+                finish_reason: data.message?.tool_calls ? "tool_calls" : "stop",
+              },
+            ],
+            pos: {
+              injected: didInject,
+              mode: config.mode,
+              attestation: attestation.id,
+              state: attestation.state,
+              reason: attestation.reason,
+              compatPreserved: preserved,
+              compatViolations: violations,
+            },
             ...passthrough.tools ? { tools: passthrough.tools } : {},
           }),
         );
@@ -184,12 +244,26 @@ export function createGatewayServer(config = loadEnforceConfig()) {
         res.end();
         return;
       }
-      const { body: injectedBody, injected } = injectPosOllama(body, config);
-      record("pos-gateway", "ollama/chat", JSON.stringify({ injected, model: body.model }));
+      const { body: injected0, injected } = injectPosOllama(body, config);
+      const { body: injectedBody, violations, preserved } = guardOutbound(body, injected0);
+      record("pos-gateway", "ollama/chat", JSON.stringify({ injected, model: body.model, compat: preserved ? "ok" : violations }));
       try {
         const data = await forwardOllamaChat(config.ollamaUpstream, injectedBody);
+        const { text, attestation } = routeAndBanner({
+          prompt: lastUserPrompt(body.messages || []),
+          surface: "ollama/api/chat",
+          client: req.headers["user-agent"] || "unknown",
+          config,
+          content: data.message?.content || "",
+        });
         res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ ...data, pos: { injected, mode: config.mode } }));
+        res.end(
+          JSON.stringify({
+            ...data,
+            message: { ...(data.message || { role: "assistant" }), content: text },
+            pos: { injected, mode: config.mode, attestation: attestation.id, state: attestation.state, compatPreserved: preserved },
+          }),
+        );
       } catch (err) {
         res.writeHead(502, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: String(err.message || err) }));
@@ -199,16 +273,22 @@ export function createGatewayServer(config = loadEnforceConfig()) {
 
     if (req.url === "/api/generate" && req.method === "POST") {
       const raw = await readBody(req);
-      let body = JSON.parse(raw || "{}");
-      if (body.system && !/\[PROMPT OS\]/i.test(body.system)) {
-        const preamble = injectPosOllama({ system: body.system }, config);
-        body = { ...body, system: preamble.body.system };
-      }
-      record("pos-gateway", "ollama/generate", JSON.stringify({ model: body.model }));
+      const parsed = JSON.parse(raw || "{}");
+      // Spoof-resistant: recognition is by signed stamp, not by the words "[PROMPT OS]".
+      const { body: injected0 } = injectPosOllama(parsed, config);
+      const { body, preserved } = guardOutbound(parsed, injected0);
+      record("pos-gateway", "ollama/generate", JSON.stringify({ model: body.model, compat: preserved ? "ok" : "reverted" }));
       try {
         const data = await forwardOllamaGenerate(config.ollamaUpstream, body);
+        const { text, attestation } = routeAndBanner({
+          prompt: String(parsed.prompt ?? ""),
+          surface: "ollama/api/generate",
+          client: req.headers["user-agent"] || "unknown",
+          config,
+          content: data.response || "",
+        });
         res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(data));
+        res.end(JSON.stringify({ ...data, response: text, pos: { attestation: attestation.id, state: attestation.state } }));
       } catch (err) {
         res.writeHead(502, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: String(err.message || err) }));

@@ -21,6 +21,20 @@ function scriptPath(name) {
   return join(repoRoot, "kernel", "scripts", name);
 }
 
+function enforcePath(name) {
+  const installed = join(posRoot, "enforce", name);
+  if (existsSync(installed)) return installed;
+  return join(repoRoot, "kernel", "enforce", name);
+}
+
+function runFile(file, args) {
+  const r = spawnSync(process.execPath, [file, ...args], {
+    stdio: "inherit",
+    env: { ...process.env, PROMPT_OS_ROOT: posRoot },
+  });
+  process.exit(r.status ?? 1);
+}
+
 function runScript(name, args, inherit = true) {
   const script = scriptPath(name);
   if (!existsSync(script)) {
@@ -101,6 +115,23 @@ switch (cmd) {
   case "evidence-check":
     runScript("evidence-check.mjs", rest);
     break;
+  case "prove":
+    // Certification path: always the hard gate, never the syntactic one.
+    runScript("evidence-check.mjs", [...rest, "--done", "--hard"]);
+    break;
+  case "receipt":
+    runScript("receipt.mjs", rest);
+    break;
+  case "tenet-check":
+  case "tenets":
+    runScript("tenet-check.mjs", rest);
+    break;
+  case "attest":
+    runFile(enforcePath("attest.mjs"), rest);
+    break;
+  case "ledger":
+    runScript("ledger-verify.mjs", rest);
+    break;
   case "watchdog":
     runScript("watchdog.mjs", rest);
     break;
@@ -130,7 +161,14 @@ switch (cmd) {
   pos variables list                  # mutable variable registry
   pos reward '<json>'                 # compute G reward
   pos program status <slug>           # slice progress
-  pos evidence-check <file> [--done|--slice]
+  pos evidence-check <file> [--done|--slice]   # L2 shape only (cannot certify)
+  pos prove <contract>                # L3 hard gate: attestation + re-executed receipts
+  pos receipt run "<cmd>"             # mint a signed receipt by actually running it
+  pos receipt verify|reverify <id>    # signature check / re-execution check
+  pos attest prompt "<text>"          # record that a prompt went through POS
+  pos attest verify <id>
+  pos tenet-check --done [--contract f --evidence f --receipts '["rcpt_.."]']
+  pos ledger [name]                   # verify tamper-evidence of the audit chains
   pos enforce on|off|status|doctor [--strict]
   pos gateway                         # start mandatory gateway :8555
   pos install [--force] [--soft] [--with-kit]

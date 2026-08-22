@@ -151,6 +151,12 @@ async function main() {
     backupIfExists(join(routerDir, "PROMPT-ROUTER.md"), backupRoot);
   }
 
+  // Backward compatibility is verified, not promised: snapshot every existing
+  // skill, MCP config, IDE rule and legacy outcome-os file, then prove after
+  // wiring that the install only ADDED things.
+  const { inventory, diffInventory } = await import("./kernel/enforce/compat.mjs");
+  const before = inventory(home);
+
   copyKernel();
   migrateLegacy();
   ensureDirs();
@@ -187,6 +193,17 @@ async function main() {
     setUserEnvVars(manifest);
     log("Hard enforce enabled (default). Use --soft to disable.");
   }
+
+  const compat = diffInventory(before, inventory(home));
+  if (compat.ok) {
+    log(`Backward compatibility verified: ${compat.added.length} file(s) added, 0 removed, 0 modified.`);
+  } else {
+    log("BACKWARD COMPATIBILITY VIOLATION — POS changed files it must only add to:");
+    for (const f of compat.removed) log(`  removed:  ${f}`);
+    for (const f of compat.modified) log(`  modified: ${f}`);
+    log(`Restore from the backup above and report this. POS must never disturb existing skills/MCP/rules.`);
+  }
+  writeFileSync(join(posRoot, "COMPAT.json"), JSON.stringify({ checkedAt: new Date().toISOString(), ...compat }, null, 2) + "\n", "utf8");
 
   log("");
   log("✓ Prompt OS installed");

@@ -10,7 +10,9 @@
   "scripts": {
     "install:local": "node install.mjs",
     "doctor": "node bin/pos.mjs doctor",
-    "test": "node kernel/scripts/evidence-check.test.mjs && node kernel/scripts/watchdog.mjs --self-test && node kernel/scripts/possandbox.test.mjs"
+    "test": "node kernel/scripts/evidence-check.test.mjs && node kernel/scripts/watchdog.mjs --self-test && node kernel/scripts/possandbox.test.mjs && node --test kernel/enforce/inject.test.mjs && node kernel/scripts/adversarial.test.mjs && node kernel/scripts/scenarios.test.mjs",
+    "test:adversarial": "node kernel/scripts/adversarial.test.mjs",
+    "test:scenarios": "node kernel/scripts/scenarios.test.mjs"
   },
   "engines": {
     "node": ">=20"

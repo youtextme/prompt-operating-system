@@ -14,6 +14,33 @@ These tenets reconcile the POS kernel spec with research-backed verification (20
 | 8 | **Evolve&Improve** | Bounded recursive self-improvement | Golden failure benchmark + A/B patch promotion + 3-outcome constitution rule |
 | 9 | **NoOneBigShotOutcome** | Deliver outcome in human-verifiable slices; every slice is usable on its own | Program contract + `slices/` queue; `evidence-check --slice`; program stays `active` until all slices proven or killed |
 
+## Hard enforcement — the mechanism per tenet
+
+The table above says *what* each tenet means. This one says what the kernel actually **refuses**.
+Every row is a deterministic check in `kernel/scripts/tenet-check.mjs`, and every row has a
+matching attack in `kernel/scripts/adversarial.test.mjs`.
+
+| # | Tenet | Hard check | What it stops |
+|---|-------|-----------|---------------|
+| 1 | GoSolo | routed attestation whose `promptHash` matches this prompt | claiming POS governance while bypassing it; printing the banner by hand |
+| 2 | KeepItWarm | ledger signature + `prev` chain + **signed head anchor** | editing, deleting, reordering or truncating audit history |
+| 3 | TerminalOutcomes | `done` only when status is `proven` or `killed` | "done (in progress)" |
+| 4 | WayofWorking | required contract sections present for non-trivial work | skipping the brief, kill criteria and falsifiable assumptions |
+| 5 | BarRaiserBoard | ≥3 distinct judges, author excluded, verdicts cite verified receipts, unanimous approve needs a dissent or a resolved dissent | self-grading, sock-puppet judges, rubber-stamp boards |
+| 6 | FeedbackLoop | signed, verified feedback entries | inventing "the user approved this" |
+| 7 | FormulasAndBooleans | metric must parse to comparator + number; ≥2 receipts that verify **and** re-execute green | vibes metrics, keyword stuffing, pasted `$ npm test` / `exit:0` |
+| 8 | Evolve&Improve | verified lesson linked to a real change ref | "we learned a lot" with nothing changed |
+| 9 | NoOneBigShotOutcome | ≥2 slices for non-trivial work | one monolithic ship |
+
+Two properties make these hard rather than well-intentioned:
+
+- **Nothing textual certifies.** `pos evidence-check` is explicitly labelled
+  `level: "L2-syntactic", certified: false`. Only `pos prove` / `--hard` certifies, and it needs a
+  routed attestation plus kernel-minted receipts.
+- **Receipts are re-executed, not read.** `pos receipt reverify` runs the recorded command again in
+  the recorded working directory and compares the live exit code with the signed one, so a receipt
+  that was green yesterday (or was forged with a stolen key) fails the moment reality disagrees.
+
 ### NoOneBigShotOutcome (tenet 9) — definition
 
 Large objectives (multi-hour research, many agents, company-scale product) **must not** wait for one final “big bang” ship.
