@@ -22,3 +22,11 @@ export function programsDir(root = osRoot()) {
 export function tracesDir(root = osRoot()) {
   return join(root, "traces");
 }
+
+export function ledgerDir(root = osRoot()) {
+  return join(root, "ledger");
+}
+
+export function constitutionPath(root = osRoot()) {
+  return join(root, "CONSTITUTION.md");
+}

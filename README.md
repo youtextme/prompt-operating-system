@@ -49,12 +49,17 @@ node install.mjs
 3. **Migrates** legacy `~/.agents/outcome-os/` if present
 4. **Detects and wires** installed tools: Cursor, VS Code, opencode, Claude Code, OpenClaw, Windsurf, Continue, Devin
 5. Replaces prior POS wiring (legacy Outcome OS rules → Prompt OS)
+6. **Proves backward compatibility** — inventories your existing skills, MCP configs, IDE rules and
+   legacy outcome-os data before wiring and diffs afterwards. User files must be byte-identical,
+   JSON configs may only be *added to*. Result: `~/.agents/prompt-os/COMPAT.json`
 
 ### Verify
 
 ```bash
-npm test
+npm test                   # unit + 29 adversarial attacks + 4 end-to-end prompt scenarios
+npm run test:adversarial    # every LLM gaming attempt must be caught
 node bin/pos.mjs doctor
+node bin/pos.mjs ledger     # audit chains are tamper-evident
 ```
 
 ### `/possandbox` — prompt validator
@@ -66,6 +71,41 @@ pos sandbox "your prompt here" --gist
 Traces: `~/.agents/prompt-os/traces/`. Skill: `~/.cursor/skills/possandbox`. See [docs/PRIMITIVES.md](docs/PRIMITIVES.md).
 
 ---
+
+## The first line tells you the truth
+
+POS owns the first line of every routed response, and the model cannot author it:
+
+```
+Prompt Operating System at Play. We'll get you the outcomes you need.
+```
+
+If a prompt did **not** go through POS (or the kernel is broken), the prompt is still answered —
+nothing fails — but it opens with:
+
+```
+Prompt Operating System NOT at play — <reason>. Answering anyway; done/proven claims stay blocked until POS is repaired.
+```
+
+The routed line is accepted only when it carries a kernel-signed attestation whose hash matches
+the prompt that was actually submitted. A model that prints the banner itself gets rewritten to
+the warning. See [ENFORCEMENT.md](docs/ENFORCEMENT.md).
+
+## Nothing is proven by prose
+
+| Claim | What POS demands |
+|-------|------------------|
+| "POS governed this" | signed attestation bound to the prompt hash |
+| "tests pass" | receipts the **kernel** minted by running the command, re-executed at verify time |
+| "reviewed and approved" | ≥3 independent judges, author excluded, verdicts citing verified receipts |
+| "history is intact" | hash chain **and** signed head anchor (catches truncation) |
+| "it's done" | status `proven`/`killed` + ≥2 green re-executed receipts + a numeric metric |
+
+```bash
+pos receipt run "npm test"   # kernel runs it, signs the real exit code
+pos prove contract.md         # L3 gate; pasted logs are worthless here
+pos tenet-check --done --contract c.md --evidence e.md --receipts '["rcpt_…"]'
+```
 
 ## What you get
 
@@ -91,7 +131,10 @@ L1 Formal → L2 Programmatic → L3 Adversarial → L4 Multi-judge → L5 Singl
 ### Core commands
 
 ```bash
-# Done gate (exit 0 = proven/killed with evidence)
+# Hard done gate (attestation + re-executed receipts required)
+node ~/.agents/prompt-os/scripts/evidence-check.mjs path/to/contract.md --done --hard
+
+# Shape check only — reports certified:false, level:L2-syntactic
 node ~/.agents/prompt-os/scripts/evidence-check.mjs path/to/contract.md --done
 
 # Loop detector (10=stall, 11=ack-loop)

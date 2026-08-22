@@ -66,13 +66,12 @@ function nodeInfo() {
   return { version: process.version, execPath: process.execPath };
 }
 
-function computeTier(models, gpu) {
+function computeTier(models, gpu, tools = []) {
   if (models.length > 0) {
     const big = models.some((m) => /70b|72b|79b|coder-next/i.test(m.name || ""));
     if (big || gpu.available) return "local-capable";
     return "local-light";
   }
-  const tools = detectTools(homedir());
   if (tools.some((t) => t.id === "cursor" && t.detected)) return "frontier-primary";
   return "unknown";
 }
@@ -80,6 +79,7 @@ function computeTier(models, gpu) {
 export async function detectEnvironment() {
   const detectTools = await loadDetectTools();
   const models = await ollamaModels();
+  const tools = detectTools(homedir());
   const gpu = gpuInfo();
   const ramGb = Math.round(totalmem() / 1024 ** 3);
   const freeRamGb = Math.round(freemem() / 1024 ** 3);
@@ -99,8 +99,8 @@ export async function detectEnvironment() {
       models,
     },
     hub: { port: 8555, configured: existsSync(join(osRoot(), "hub", "server.mjs")) },
-    tools: detectTools(homedir()).filter((t) => t.detected).map((t) => t.id),
-    computeTier: computeTier(models, gpu),
+    tools: tools.filter((t) => t.detected).map((t) => t.id),
+    computeTier: computeTier(models, gpu, tools),
   };
 
   const wiring = join(osRoot(), "WIRING.json");

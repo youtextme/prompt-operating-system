@@ -1,13 +1,25 @@
 #!/usr/bin/env node
 /**
  * Prompt OS evidence gate (FormulasAndBooleans tenet).
- * Exit 0 if proven/killed with evidence. Exit 2 if done claimed without proof.
+ *
+ * IMPORTANT — two levels, do not confuse them:
+ *   L2 `grade()`   : syntactic. Checks the contract/evidence *shape*. Everything
+ *                    it inspects is text, so a model can satisfy it by writing.
+ *                    Passing L2 is necessary and NOT sufficient; its output is
+ *                    marked `certified: false`.
+ *   L3 `hardGrade()`: material. Requires a routed attestation for the prompt and
+ *                     >=2 signed receipts whose commands re-execute to the
+ *                     recorded exit code. Only this can certify "done".
+ *
+ * `pos prove` / CI must use --hard. Exit 0 = pass, 2 = claim rejected.
  */
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gradeSlice } from "./program.mjs";
+import { attestationForPrompt } from "../enforce/attest.mjs";
+import { reverify, verifyReceipt } from "./receipt.mjs";
 
 const REQUIRED_HEADINGS = [
   "## Job",
@@ -110,6 +122,49 @@ export function grade({ contractText, evidenceText, claimDone }) {
   return { ok: true, code: 0, reason: "proven" };
 }
 
+/** Receipt ids are minted by the kernel; typing one that doesn't exist fails. */
+export function extractReceiptIds(text) {
+  return [...new Set((String(text || "").match(/\brcpt_[a-f0-9]{8,64}\b/g) || []))];
+}
+
+/**
+ * L3 gate. Text may describe the work; only receipts and attestations prove it.
+ * @param {{contractText:string,evidenceText:string,claimDone:boolean,prompt?:string,root?:string,reverifyReceipts?:boolean}} args
+ */
+export function hardGrade({ contractText, evidenceText, claimDone, prompt = "", root = osRoot(), reverifyReceipts = true }) {
+  const syntactic = grade({ contractText, evidenceText, claimDone });
+  if (!syntactic.ok) return { ...syntactic, certified: false, level: "L2" };
+  if (!claimDone) return { ...syntactic, certified: false, level: "L2", reason: "in progress" };
+
+  if (prompt) {
+    const att = attestationForPrompt(prompt, root);
+    if (!att.ok) {
+      return { ok: false, code: 2, certified: false, level: "L3", reason: "no routed attestation for this prompt — POS was bypassed, cannot certify" };
+    }
+  }
+
+  const ids = extractReceiptIds(evidenceText);
+  const checked = ids.map((id) => {
+    const v = verifyReceipt(id, root);
+    if (!v.ok) return { id, verified: false, reverified: false, exit: -1, reason: v.reason };
+    const rr = reverifyReceipts ? reverify(id, root) : { ok: true, reason: "reverify skipped" };
+    return { id, verified: true, reverified: rr.ok, exit: v.receipt.exit, reason: rr.reason };
+  });
+  const green = checked.filter((r) => r.verified && r.reverified && r.exit === 0);
+  if (green.length < 2) {
+    return {
+      ok: false,
+      code: 2,
+      certified: false,
+      level: "L3",
+      reason: `need >=2 kernel receipts that verify and re-execute green, have ${green.length}` +
+        (checked.length ? ` (${checked.map((c) => `${c.id}:${c.reason}`).join("; ")})` : " (no rcpt_ ids in evidence — run: pos receipt run \"<cmd>\")"),
+      receipts: checked,
+    };
+  }
+  return { ok: true, code: 0, certified: true, level: "L3", reason: `proven: ${green.length} receipts re-executed green`, receipts: checked };
+}
+
 export function findActiveContracts(root = osRoot()) {
   const dir = join(root, "contracts", "active");
   if (!existsSync(dir)) return [];
@@ -143,12 +198,34 @@ function main(argv) {
     process.exit(result.code);
   }
 
+  if (argv.includes("--hard")) {
+    const promptIdx = argv.indexOf("--prompt");
+    const result = hardGrade({
+      contractText,
+      evidenceText,
+      claimDone,
+      prompt: promptIdx >= 0 ? argv[promptIdx + 1] : "",
+      reverifyReceipts: !argv.includes("--no-reverify"),
+    });
+    process.stdout.write(JSON.stringify({ ...result, contractPath: contractPath || null, root: osRoot() }) + "\n");
+    process.exit(result.code);
+  }
+
   const result = grade({
     contractText,
     evidenceText,
     claimDone,
   });
-  process.stdout.write(JSON.stringify({ ...result, contractPath: contractPath || null, root: osRoot() }) + "\n");
+  process.stdout.write(
+    JSON.stringify({
+      ...result,
+      certified: false,
+      level: "L2-syntactic",
+      note: "L2 checks shape only and can be satisfied by text. Certify with --hard (or pos tenet-check --done).",
+      contractPath: contractPath || null,
+      root: osRoot(),
+    }) + "\n",
+  );
   process.exit(result.code);
 }
 
