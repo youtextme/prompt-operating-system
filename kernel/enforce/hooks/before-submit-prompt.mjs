@@ -63,9 +63,32 @@ async function main() {
   );
 }
 
-main().catch(() => {
-  const hard =
-    existsSync(enforcePath) &&
-    readFileSync(enforcePath, "utf8").includes('"mode": "hard"');
-  process.exit(hard ? 2 : 0);
+main().catch((err) => {
+  try {
+    const hard =
+      existsSync(enforcePath) &&
+      readFileSync(enforcePath, "utf8").includes('"mode": "hard"');
+    // Always emit JSON so Cursor failClosed has a message; block only on hard+missing kernel, otherwise allow
+    if (hard) {
+      process.stdout.write(
+        JSON.stringify({
+          permission: "deny",
+          user_message: `POS hook error: ${String(err?.message || err).slice(0, 200)} — kernel check failed`,
+        }),
+      );
+      process.exit(2);
+    } else {
+      process.stdout.write(
+        JSON.stringify({
+          continue: true,
+          additional_context: `[PROMPT OS active - soft fallback] ${String(err?.message || '').slice(0,100)}`,
+        }),
+      );
+      process.exit(0);
+    }
+  } catch {
+    // Last resort: ensure some output
+    try { process.stdout.write(JSON.stringify({ continue: true })); } catch {}
+    process.exit(0);
+  }
 });

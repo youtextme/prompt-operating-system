@@ -96,7 +96,7 @@ export function installEnforceHooks() {
   }
 
   const entry = {
-    command: "./hooks/before-submit-prompt.mjs",
+    command: "node ./hooks/before-submit-prompt.mjs",
     matcher: "UserPromptSubmit",
     failClosed: true,
   };

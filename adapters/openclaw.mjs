@@ -19,7 +19,13 @@ Evidence gate: \`node ${join(posRoot, "scripts", "evidence-check.mjs")}\`
   const workspaceAgents = join(openclawDir, "workspace", "AGENTS.md");
   if (existsSync(workspaceAgents)) {
     let text = readFileSync(workspaceAgents, "utf8");
+    // Fix legacy outcome-os refs even if snippet already present
+    if (/outcome-os/.test(text)) {
+      text = text.replaceAll("outcome-os", "prompt-os");
+      writeFileSync(workspaceAgents, text, "utf8");
+    }
     if (!/Prompt OS \(installed\)/.test(text)) {
+      text = readFileSync(workspaceAgents, "utf8");
       writeFileSync(workspaceAgents, text.trimEnd() + "\n" + agentsSnippet + "\n", "utf8");
     }
     return { tool: "openclaw", status: "wired", detail: workspaceAgents };

@@ -25,20 +25,21 @@ export async function wireEnforce({ home = homedir(), posRoot, routerPath, mode 
   results.push({ component: "cursor-hook", status: hooks.cursor ? "ok" : "skipped", detail: hooks.cursor || "" });
 
   const isWin = platform() === "win32";
-  const opencodePath = join(
-    home,
-    isWin ? "AppData/Roaming/opencode/opencode.jsonc" : ".config/opencode/opencode.jsonc",
-  );
-  if (existsSync(opencodePath)) {
-    try {
-      let raw = readFileSync(opencodePath, "utf8").replace(/^\uFEFF/, "");
-      const config = JSON.parse(raw.replace(/\/\/.*$/gm, "").replace(/,\s*([\]}])/g, "$1"));
-      config.openai = { ...(config.openai || {}), baseURL: GATEWAY };
-      config.env = { ...(config.env || {}), OPENAI_BASE_URL: GATEWAY, OLLAMA_HOST: "127.0.0.1:8555" };
-      writeFileSync(opencodePath, JSON.stringify(config, null, 2) + "\n", "utf8");
-      results.push({ component: "opencode-gateway", status: "ok", detail: opencodePath });
-    } catch (err) {
-      results.push({ component: "opencode-gateway", status: "error", detail: String(err.message) });
+  const opencodeCandidates = isWin
+    ? [join(home, "AppData/Roaming/opencode/opencode.jsonc"), join(home, ".config/opencode/opencode.jsonc")]
+    : [join(home, ".config/opencode/opencode.jsonc")];
+  for (const opencodePath of opencodeCandidates) {
+    if (existsSync(opencodePath)) {
+      try {
+        let raw = readFileSync(opencodePath, "utf8").replace(/^\uFEFF/, "");
+        const config = JSON.parse(raw.replace(/\/\/.*$/gm, "").replace(/,\s*([\]}])/g, "$1"));
+        config.openai = { ...(config.openai || {}), baseURL: GATEWAY };
+        config.env = { ...(config.env || {}), OPENAI_BASE_URL: GATEWAY, OPENAI_API_BASE: GATEWAY, OLLAMA_HOST: "127.0.0.1:8555" };
+        writeFileSync(opencodePath, JSON.stringify(config, null, 2) + "\n", "utf8");
+        results.push({ component: "opencode-gateway", status: "ok", detail: opencodePath });
+      } catch (err) {
+        results.push({ component: "opencode-gateway", status: "error", detail: String(err.message) });
+      }
     }
   }
 
