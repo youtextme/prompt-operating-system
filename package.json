@@ -1,0 +1,26 @@
+{
+  "name": "prompt-operating-system",
+  "version": "2.0.0",
+  "description": "Universal Prompt OS — one install, every IDE and CLI routes through objective contracts and machine-enforced evidence.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "pos": "./bin/pos.mjs"
+  },
+  "scripts": {
+    "install:local": "node install.mjs",
+    "doctor": "node bin/pos.mjs doctor",
+    "test": "node kernel/scripts/evidence-check.test.mjs && node kernel/scripts/watchdog.mjs --self-test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "optionalDependencies": {
+    "playwright": "^1.52.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/youtextme/prompt-operating-system.git"
+  },
+  "homepage": "https://youtextme.github.io/prompt-operating-system/"
+}

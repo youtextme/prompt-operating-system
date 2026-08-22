@@ -1,0 +1,15 @@
+{
+  "port": 8555,
+  "ollama": "http://127.0.0.1:11434",
+  "roles": {
+    "router": "llama3.2:3b",
+    "planner": "qwen3:8b",
+    "general": "qwen3:8b",
+    "reasoner": "deepseek-r1:8b",
+    "coder": "qwen2.5-coder:7b",
+    "vision": "qwen2.5vl:7b",
+    "fast": "llama3.2:3b"
+  },
+  "maxToolIterations": 6,
+  "maxSubtasks": 4
+}

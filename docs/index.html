@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prompt OS — Universal Prompt Operating System</title>
+  <meta name="description" content="One install. Every IDE and CLI. Objective contracts. Machine-enforced evidence." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0e14;
+      --surface: #121820;
+      --border: #1e2a3a;
+      --text: #e6edf3;
+      --muted: #8b9cb3;
+      --accent: #3dd68c;
+      --accent2: #59c2ff;
+      --warn: #f0b429;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    header { margin-bottom: 2.5rem; }
+    h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; letter-spacing: -0.02em; }
+    .tagline { color: var(--muted); font-size: 1.1rem; margin-top: 0.5rem; }
+    .hero-code {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.85rem;
+      overflow-x: auto;
+    }
+    .hero-code code { color: var(--accent); }
+    h2 { font-size: 1.25rem; margin: 2rem 0 0.75rem; color: var(--accent2); }
+    p, li { color: var(--muted); }
+    ul { padding-left: 1.25rem; margin: 0.5rem 0 1rem; }
+    li { margin: 0.35rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 1rem 0; }
+    th, td { border: 1px solid var(--border); padding: 0.5rem 0.75rem; text-align: left; }
+    th { background: var(--surface); color: var(--text); }
+    .tenets { display: grid; gap: 0.75rem; margin: 1rem 0; }
+    .tenet {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+    }
+    .tenet strong { color: var(--accent); }
+    .hierarchy {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.8rem;
+      background: var(--surface);
+      border-left: 3px solid var(--accent);
+      padding: 1rem;
+      margin: 1rem 0;
+      white-space: pre-wrap;
+    }
+    a { color: var(--accent2); }
+    .cta {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.6rem 1.2rem;
+      background: var(--accent);
+      color: var(--bg);
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+    footer { margin-top: 3rem; font-size: 0.85rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Prompt OS</h1>
+      <p class="tagline">One install. Every IDE and CLI. Objective contracts. Machine-enforced evidence.</p>
+    </header>
+
+    <p>Prompt OS is a <strong style="color:var(--text)">universal kernel</strong> that compiles raw intent into falsifiable contracts and gates &ldquo;done&rdquo; on exit codes — not model confidence.</p>
+
+    <h2>Install</h2>
+    <div class="hero-code">
+      <div># macOS / Linux</div>
+      <code>curl -fsSL https://raw.githubusercontent.com/youtextme/prompt-operating-system/main/install.sh | bash</code>
+    </div>
+    <div class="hero-code">
+      <div># Windows PowerShell</div>
+      <code>irm https://raw.githubusercontent.com/youtextme/prompt-operating-system/main/install.ps1 | iex</code>
+    </div>
+
+    <p>Install copies the kernel to <code>~/.agents/prompt-os/</code>, sets <code>~/.agents/router/PROMPT-ROUTER.md</code>, migrates legacy Outcome OS, and wires Cursor, opencode, Claude Code, VS Code, OpenClaw, and more.</p>
+
+    <a class="cta" href="https://github.com/youtextme/prompt-operating-system">View on GitHub</a>
+
+    <h2>Eight tenets</h2>
+    <div class="tenets">
+      <div class="tenet"><strong>GoSolo</strong> — Autonomous routing; optional eBPF interception (Linux)</div>
+      <div class="tenet"><strong>KeepItWarm</strong> — Git spine + audit JSONL lineage</div>
+      <div class="tenet"><strong>TerminalOutcomes</strong> — DAG of falsifiable terminal contracts</div>
+      <div class="tenet"><strong>WayofWorking</strong> — Disprove the brief before product code</div>
+      <div class="tenet"><strong>BarRaiserBoard</strong> — Multi-judge panel with minority veto</div>
+      <div class="tenet"><strong>FeedbackLoop</strong> — ≤3 high-leverage human questions at outcome gates</div>
+      <div class="tenet"><strong>FormulasAndBooleans</strong> — evidence-check.mjs exit codes</div>
+      <div class="tenet"><strong>Evolve&Improve</strong> — Golden failure benchmarks + bounded promotion</div>
+    </div>
+
+    <h2>Verification hierarchy</h2>
+    <div class="hierarchy">L1 Formal → L2 Programmatic → L3 Adversarial → L4 Multi-judge → L5 Single judge → L6 Self-grade FORBIDDEN</div>
+
+    <h2>Machine gates</h2>
+    <table>
+      <tr><th>Script</th><th>Exit</th><th>Meaning</th></tr>
+      <tr><td>evidence-check.mjs --done</td><td>0</td><td>proven/killed with receipts</td></tr>
+      <tr><td>evidence-check.mjs --done</td><td>2</td><td>false done claim blocked</td></tr>
+      <tr><td>watchdog.mjs</td><td>10</td><td>stall — identical outputs</td></tr>
+      <tr><td>watchdog.mjs</td><td>11</td><td>ack-loop — no work</td></tr>
+    </table>
+
+    <h2>Documentation</h2>
+    <ul>
+      <li><a href="ARCHITECTURE.md">Architecture (reconciled spec)</a></li>
+      <li><a href="TENETS.md">Tenets + mathematical models</a></li>
+      <li><a href="EBPF.md">Optional eBPF GoSolo layer</a></li>
+      <li><a href="https://github.com/youtextme/prompt-operating-system/blob/main/README.md">README / full install guide</a></li>
+    </ul>
+
+    <h2>Reconciled sources</h2>
+    <p>This repo merges all POS gists into one installable kernel: verification hierarchy, eight tenets, Outcome OS enforcement, unified IDE wiring, and optional local LLM hub.</p>
+
+    <footer>
+      MIT License · <a href="https://github.com/youtextme/prompt-operating-system">youtextme/prompt-operating-system</a>
+    </footer>
+  </div>
+</body>
+</html>

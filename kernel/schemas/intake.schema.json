@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prompt-os.dev/schemas/intake.schema.json",
+  "title": "PromptOSIntake",
+  "type": "object",
+  "required": ["classification", "job", "north_star_metric", "assumptions", "kill_criteria", "verification_plan"],
+  "properties": {
+    "classification": { "type": "string", "enum": ["trivial", "non_trivial"] },
+    "job": { "type": "string", "minLength": 8 },
+    "north_star_metric": {
+      "type": "object",
+      "required": ["name", "target", "window", "measurement_method"],
+      "properties": {
+        "name": { "type": "string" },
+        "target": { "type": "number" },
+        "window": { "type": "string" },
+        "measurement_method": { "type": "string", "minLength": 12 }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "claim", "falsify_by"],
+        "properties": {
+          "id": { "type": "string" },
+          "claim": { "type": "string" },
+          "falsify_by": { "type": "string" }
+        }
+      }
+    },
+    "kill_criteria": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "verification_plan": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["formal", "test", "probe", "adversarial", "judge"]
+      }
+    },
+    "missing_info": { "type": "array", "items": { "type": "string" } },
+    "user_gate_required": { "type": "boolean" },
+    "terminal_outcomes": {
+      "type": "array",
+      "description": "Optional DAG branches (TerminalOutcomes tenet)",
+      "items": {
+        "type": "object",
+        "required": ["id", "job", "depends_on"],
+        "properties": {
+          "id": { "type": "string" },
+          "job": { "type": "string" },
+          "depends_on": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}
