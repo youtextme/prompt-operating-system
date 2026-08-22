@@ -107,6 +107,12 @@ switch (cmd) {
   case "audit":
     runScript("audit.mjs", rest);
     break;
+  case "enforce":
+    runScript("enforce.mjs", rest);
+    break;
+  case "gateway":
+    runScript("enforce.mjs", ["gateway", ...rest]);
+    break;
   case "install":
     spawnSync(process.execPath, [join(repoRoot, "install.mjs"), ...rest], { stdio: "inherit" });
     break;
@@ -125,7 +131,9 @@ switch (cmd) {
   pos reward '<json>'                 # compute G reward
   pos program status <slug>           # slice progress
   pos evidence-check <file> [--done|--slice]
-  pos install [--force] [--with-kit] [--with-hub]
+  pos enforce on|off|status|doctor [--strict]
+  pos gateway                         # start mandatory gateway :8555
+  pos install [--force] [--soft] [--with-kit]
 
 `);
 }

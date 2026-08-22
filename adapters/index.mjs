@@ -6,9 +6,13 @@ import { homedir, platform } from "node:os";
 import { join } from "node:path";
 import { wireClaude } from "./claude.mjs";
 import { wireCursor } from "./cursor.mjs";
+import { wireDevin } from "./devin.mjs";
+import { wireOllama } from "./ollama.mjs";
 import { wireOpenClaw } from "./openclaw.mjs";
+import { wireOpenHands } from "./openhands.mjs";
 import { wireOpenCode } from "./opencode.mjs";
 import { wireVSCode } from "./vscode.mjs";
+import { wireEnforce } from "./enforce.mjs";
 
 export function detectTools(home = homedir()) {
   const isWin = platform() === "win32";
@@ -22,6 +26,7 @@ export function detectTools(home = homedir()) {
     windsurf: join(home, ".codeium", "windsurf"),
     continue: join(home, ".continue"),
     devin: join(home, ".devin"),
+    openhands: join(home, ".openhands"),
   };
 
   return [
@@ -34,17 +39,19 @@ export function detectTools(home = homedir()) {
     },
     { id: "claude", path: paths.claude, detected: existsSync(paths.claude) },
     { id: "openclaw", path: paths.openclaw, detected: existsSync(paths.openclaw) },
+    { id: "openhands", path: paths.openhands, detected: existsSync(paths.openhands) },
     { id: "windsurf", path: paths.windsurf, detected: existsSync(paths.windsurf) },
     { id: "continue", path: paths.continue, detected: existsSync(paths.continue) },
     { id: "devin", path: paths.devin, detected: existsSync(paths.devin) },
+    { id: "ollama", path: join(home, ".ollama"), detected: existsSync(join(home, ".ollama")) || true },
   ];
 }
 
-export async function wireAll({ home, posRoot, routerPath }) {
+export async function wireAll({ home, posRoot, routerPath, enforce = false }) {
   const results = [];
   const ctx = { home, posRoot, routerPath };
 
-  for (const fn of [wireCursor, wireOpenCode, wireClaude, wireVSCode, wireOpenClaw]) {
+  for (const fn of [wireCursor, wireOpenCode, wireClaude, wireVSCode, wireOpenClaw, wireOpenHands, wireDevin, wireOllama]) {
     try {
       results.push(await fn(ctx));
     } catch (err) {
@@ -71,16 +78,24 @@ export async function wireAll({ home, posRoot, routerPath }) {
     });
   }
 
-  // Devin — plugin/docs only unless .devin exists
-  if (existsSync(join(home, ".devin"))) {
+  // Devin fallback note if only detected
+  if (existsSync(join(home, ".devin")) && !results.some((r) => r.tool === "devin" && r.status === "wired")) {
     results.push({
       tool: "devin",
       status: "detected",
-      detail: "Use superpowers plugin + PROMPT-ROUTER in workspace AGENTS.md",
+      detail: "See ~/.devin/PROMPT-OS.md",
     });
   }
 
   writeWiringManifest(home, results);
+
+  if (enforce) {
+    const er = await wireEnforce({ home, posRoot, routerPath, mode: "hard" });
+    for (const e of er) {
+      results.push({ tool: `enforce:${e.component}`, status: e.status, detail: e.detail });
+    }
+  }
+
   return results;
 }
 

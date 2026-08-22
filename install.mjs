@@ -22,8 +22,9 @@ import { wireAll } from "./adapters/index.mjs";
 const __dir = dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
 const force = argv.includes("--force");
-const withHub = argv.includes("--with-hub");
+const withHub = argv.includes("--with-hub") || argv.includes("--enforce") || !argv.includes("--soft");
 const withKit = argv.includes("--with-kit");
+const enforce = !argv.includes("--soft");
 const dryRun = argv.includes("--dry-run");
 
 const home = homedir();
@@ -59,6 +60,9 @@ function copyKernel() {
   if (existsSync(join(__dir, "adapters"))) {
     cpSync(join(__dir, "adapters"), join(posRoot, "adapters"), { recursive: true, force: true });
   }
+  if (existsSync(join(__dir, "kernel", "enforce"))) {
+    cpSync(join(__dir, "kernel", "enforce"), join(posRoot, "enforce"), { recursive: true, force: true });
+  }
 }
 
 function migrateLegacy() {
@@ -83,13 +87,14 @@ function migrateLegacy() {
 
 function writeManifest(wired) {
   const manifest = {
-    version: "2.0.0",
+    version: "3.0.0",
     installedAt: new Date().toISOString(),
     posRoot,
     router: join(routerDir, "PROMPT-ROUTER.md"),
     platform: platform(),
     wired,
     withHub,
+    enforce,
   };
   writeFileSync(installManifest, JSON.stringify(manifest, null, 2) + "\n", "utf8");
 }
@@ -125,7 +130,7 @@ async function installHub() {
 }
 
 async function main() {
-  log("Prompt OS installer v2.0.0");
+  log("Prompt OS installer v3.0.0");
   log(`Target: ${posRoot}`);
 
   if (existsSync(installManifest) && !force) {
@@ -168,8 +173,20 @@ async function main() {
     log(`  skill: possandbox → ${skillDest}`);
   }
 
-  const wired = await wireAll({ home, posRoot, routerPath: join(routerDir, "PROMPT-ROUTER.md") });
+  const wired = await wireAll({
+    home,
+    posRoot,
+    routerPath: join(routerDir, "PROMPT-ROUTER.md"),
+    enforce,
+  });
   writeManifest(wired);
+
+  if (enforce) {
+    const { setUserEnvVars, writeEnforceManifest } = await import("./kernel/scripts/enforce.mjs");
+    const manifest = writeEnforceManifest("hard");
+    setUserEnvVars(manifest);
+    log("Hard enforce enabled (default). Use --soft to disable.");
+  }
 
   log("");
   log("✓ Prompt OS installed");

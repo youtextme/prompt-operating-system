@@ -35,9 +35,12 @@ node install.mjs
 | Flag | Effect |
 |------|--------|
 | `--force` | Replace existing install (backs up to `~/.agents/.backup-*`) |
-| `--with-hub` | Install local LLM hub on port 8555 (Ollama required) |
+| `--soft` | Wiring-only mode (no hard gateway/hooks) |
+| `--with-hub` | Install local LLM hub on port 8555 (default with hard install) |
 | `--with-kit` | Pin VibeSetup skill repos (Superpowers, grill-me, Ralph, etc.) |
 | `--dry-run` | Show plan without writing |
+
+**v3 default:** hard enforcement — gateway on `:8555`, Cursor `beforeSubmitPrompt` hook, user env vars. See [ENFORCEMENT.md](docs/ENFORCEMENT.md).
 
 ### What install does
 

@@ -99,10 +99,24 @@ Frontier: contracts, architecture, eval judgment, adversarial review.
 Local Ollama / hub at `http://localhost:8555`: research sweeps, loops, scoring, heartbeats.  
 Never tunnel Ollama publicly — loopback or Tailscale Serve only.
 
+## Hard enforcement (v3 default)
+
+POS defines **no prompt escape** via four rings — see `docs/ENFORCEMENT.md`:
+
+1. **Gateway** `http://127.0.0.1:8555` — OpenAI + Ollama proxy; prepend-only injection; audit every request.
+2. **Cursor hook** `beforeSubmitPrompt` — fail-closed if kernel missing in hard mode.
+3. **IDE wiring** — global rules/suffixes (backup ring).
+4. **Exit gate** — `evidence-check.mjs` for `proven` (unchanged).
+
+Install: `node install.mjs --force` (hard default). Soft: `--soft`.  
+Verify: `pos enforce doctor --strict`. Start gateway: `pos gateway`.
+
+**Backward compatibility:** skills, MCP configs, and existing system messages are never removed — POS prepends law only; `tools[]` passes through unchanged.
+
 ## Autonomy primitives
 
 File creation; GitHub via `gh` (no repo deletion); npm/pip/git/winget. Do not re-ask for these. Pause only at outcome gates.
 
 ## Optional: GoSolo kernel interception
 
-When `pos-ebpf` is installed (Linux, root), TLS/execve hooks route nested agent spawns through this router automatically. Without it, IDE/CLI wiring via `pos install` applies (see `WIRING.json`).
+When `pos-ebpf` is installed (Linux, root), TLS/execve hooks route nested agent spawns through this router automatically. On Windows/macOS, **hard mode** uses gateway + Cursor hooks (see Hard enforcement above). Soft mode: wiring only (`pos install --soft`).
