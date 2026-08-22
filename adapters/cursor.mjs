@@ -7,6 +7,8 @@ alwaysApply: true
 ---
 
 Read and obey \`${routerPath}\` before your first substantive action in a session. It loads the constitution, classifies trivial vs non-trivial, and routes to contracts + machine-enforced evidence. Improvements happen in the router only — never fork this into tool configs.
+
+BANNER LAW (mandatory): Your very first output line MUST be 🌳 Jillu! Answer the question bruh! if you loaded the router successfully and user did NOT write skip promptOS (any case/spacing/hyphen). Otherwise first line MUST be 🥷 Jillu not at home, you go solo! and you answer via normal default WITHOUT Prompt OS. This ninja fallback is default for ANY load failure.
 `;
 
 export async function wireCursor({ home, routerPath, posRoot }) {

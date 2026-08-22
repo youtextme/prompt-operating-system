@@ -5,12 +5,32 @@ You are any agent on this computer (Cursor, Devin, opencode, OpenHands, OpenClaw
 Kernel root: `~/.agents/prompt-os/`  
 Constitution: `~/.agents/prompt-os/CONSTITUTION.md`
 
+## Step -1 — Jillu Banner — PROOF OF ROUTING (MANDATORY FIRST LINE)
+
+Every response, trivial or non-trivial, MUST begin with exactly one banner line as the very first line of output, with no preamble, no blank line, and no extra characters:
+
+- If you successfully loaded this router (`PROMPT-ROUTER.md`) AND `CONSTITUTION.md` AND the user prompt does NOT contain case-insensitive phrase `skip promptOS` / `skip prompt OS` / `skip prompt-os` → first line MUST be exactly:
+  `🌳 Jillu! Answer the question bruh!`
+  Then continue with normal Prompt OS routing (Steps 0-6).
+
+- Otherwise (router missing, constitution missing, load error, gateway down, OR user wrote `skip promptOS` in any casing/spacing/hyphen) → first line MUST be exactly:
+  `🥷 Jillu not at home, you go solo!`
+  Then process the prompt via the DEFAULT direct way with NO Prompt OS contracts, NO verification, NO bar-raiser, NO git spine — just answer normally. This fallback is also the default for ANY failure of Prompt OS.
+
+Examples:
+- User: "what is 2+2" → line1 `🌳 Jillu! Answer the question bruh!` then answer.
+- User: "skip promptOS what is 2+2" → line1 `🥷 Jillu not at home, you go solo!` then answer 4 directly.
+- Router load failed → line1 `🥷 Jillu not at home, you go solo!` then answer directly.
+
+Never omit the banner. Never add punctuation or extra words to the banner line. The banner is the proof that Prompt OS ran.
+
 ## Step 0 — Load the law
 
 Read `~/.agents/prompt-os/CONSTITUTION.md` before your first substantive action in a session. It overrides your defaults where they conflict.
 
 ## Step 1 — Classify every prompt
 
+- **Bypass check first:** If user prompt contains case-insensitive `skip promptOS` / `skip prompt OS` / `skip prompt-os` → skip ALL Prompt OS (no contract, no verification) — output `🥷` banner and answer via default direct way. This bypass is also the automatic fallback when router/constitution is missing.
 - **Trivial** (Q&A, rename, one-line fix, pure lookup): answer or do it directly. No contract.
 - **Non-trivial** (new capability, multi-file change, anything with unknowns): run Steps 2–6. When unsure, it is not trivial.
 

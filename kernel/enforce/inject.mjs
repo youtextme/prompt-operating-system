@@ -17,6 +17,7 @@ export function loadPosPreamble(routerPath, posRoot) {
     "[PROMPT OS — mandatory kernel]",
     `Read and obey: ${routerPath}`,
     existsSync(constitution) ? `Constitution: ${constitution}` : "",
+    "BANNER LAW (proof of routing): Every response MUST start with exactly one line: `🌳 Jillu! Answer the question bruh!` if Prompt OS loaded+succeeded, else `🥷 Jillu not at home, you go solo!` . If user prompt contains case-insensitive `skip promptOS`/`skip prompt OS`/`skip prompt-os` → output ninja banner and answer WITHOUT Prompt OS (default direct way). This ninja fallback is also default for ANY Prompt OS failure.",
     "Classify trivial vs non-trivial. Non-trivial → outcome contract before building.",
     "Preserve all existing tools, MCP servers, and skills — POS adds law only.",
   ]

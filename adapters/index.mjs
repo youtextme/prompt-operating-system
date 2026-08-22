@@ -68,14 +68,27 @@ export async function wireAll({ home, posRoot, routerPath, enforce = false }) {
     results.push({ tool: "windsurf", status: "wired", detail: rulePath });
   }
 
-  // Continue config hint
-  const continueConfig = join(home, ".continue", "config.json");
+  // Continue - wire customInstructions if config.yaml exists
   if (existsSync(join(home, ".continue"))) {
-    results.push({
-      tool: "continue",
-      status: "detected",
-      detail: `Add to Continue system message: Read ${routerPath}`,
-    });
+    const yamlPath = join(home, ".continue", "config.yaml");
+    const jsonPath = join(home, ".continue", "config.json");
+    const target = existsSync(yamlPath) ? yamlPath : jsonPath;
+    try {
+      if (existsSync(yamlPath)) {
+        let yaml = readFileSync(yamlPath, "utf8");
+        const banner = `customInstructions: "Read ${routerPath}. BANNER LAW: First line MUST be 🌳 Jillu! Answer the question bruh! if router loaded and user did NOT write skip promptOS else 🥷 Jillu not at home, you go solo! and answer WITHOUT Prompt OS - ninja fallback default for ANY failure."`;
+        if (!yaml.includes("BANNER LAW")) {
+          if (yaml.includes("customInstructions:")) yaml = yaml.replace(/customInstructions:.*/m, banner);
+          else yaml = yaml.trimEnd() + "\n\n" + banner + "\n";
+          writeFileSync(yamlPath, yaml, "utf8");
+        }
+        results.push({ tool: "continue", status: "wired", detail: `${yamlPath} customInstructions wired` });
+      } else {
+        results.push({ tool: "continue", status: "wired", detail: `Add to Continue system message: Read ${routerPath} + BANNER LAW (see config.yaml)` });
+      }
+    } catch (e) {
+      results.push({ tool: "continue", status: "detected", detail: `Add to Continue system message: Read ${routerPath} - ${e.message}` });
+    }
   }
 
   // Devin fallback note if only detected
@@ -100,7 +113,7 @@ export async function wireAll({ home, posRoot, routerPath, enforce = false }) {
 }
 
 function windsurfRule(routerPath) {
-  return `# Prompt OS\n\nRead and obey \`${routerPath}\` before any substantive action.\n`;
+  return `# Prompt OS\n\nRead and obey \`${routerPath}\` before any substantive action.\n\nBANNER LAW: First output line MUST be 🌳 Jillu! Answer the question bruh! if router loaded and user did NOT write skip promptOS (any case/spacing/hyphen). Else first line MUST be 🥷 Jillu not at home, you go solo! and answer WITHOUT Prompt OS — ninja fallback default for ANY failure.\n`;
 }
 
 function writeWiringManifest(home, results) {

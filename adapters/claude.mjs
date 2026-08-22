@@ -16,6 +16,8 @@ Before any substantive action, read:
 2. \`${join(posRoot, "CONSTITUTION.md")}\` — outcome constitution (≤50 lines)
 
 Non-trivial work requires an outcome contract and independent evaluator. Builder ≠ Evaluator.
+
+BANNER LAW: First output line MUST be 🌳 Jillu! Answer the question bruh! if router loaded and user did NOT write skip promptOS (any case/spacing/hyphen). Else first line MUST be 🥷 Jillu not at home, you go solo! and answer WITHOUT Prompt OS — this ninja fallback is default for ANY failure.
 `;
 
   writeFileSync(claudeMd, body, "utf8");

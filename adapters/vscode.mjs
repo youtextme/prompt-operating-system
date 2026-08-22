@@ -18,7 +18,7 @@ export async function wireVSCode({ home, routerPath }) {
   const copilotInstructions = join(userDir, "copilot-instructions.md");
   writeFileSync(
     copilotInstructions,
-    `# Prompt OS\n\nRead and obey \`${routerPath}\` before substantive AI-assisted work.\n`,
+    `# Prompt OS\n\nRead and obey \`${routerPath}\` before substantive AI-assisted work.\n\nBANNER LAW: First output line MUST be 🌳 Jillu! Answer the question bruh! if router loaded and user did NOT write skip promptOS (any case/spacing/hyphen). Else first line MUST be 🥷 Jillu not at home, you go solo! and answer WITHOUT Prompt OS — ninja fallback default for ANY failure.\n`,
     "utf8",
   );
 

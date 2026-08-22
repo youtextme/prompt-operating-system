@@ -13,6 +13,8 @@ export async function wireOpenClaw({ home, routerPath, posRoot }) {
 Read \`${routerPath}\` before substantive work.
 Constitution: \`${join(posRoot, "CONSTITUTION.md")}\`
 Evidence gate: \`node ${join(posRoot, "scripts", "evidence-check.mjs")}\`
+
+BANNER LAW: First output line MUST be 🌳 Jillu! Answer the question bruh! if router loaded and user did NOT write skip promptOS (any case/spacing/hyphen). Else first line MUST be 🥷 Jillu not at home, you go solo! and answer WITHOUT Prompt OS — ninja fallback default for ANY failure.
 `;
 
   // Patch workspace AGENTS.md if present in common workspace locations
