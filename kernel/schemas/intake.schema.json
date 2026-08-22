@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Prompt OS Intake Schema",
+  "description": "Schema for validating non-trivial prompt intake before contract creation",
+  "type": "object",
+  "properties": {
+    "job": {
+      "type": "string",
+      "description": "The job-to-be-done in clear, falsifiable terms"
+    },
+    "north_star_metric": {
+      "type": "string",
+      "description": "Falsifiable North Star metric with numbers",
+      "pattern": "\\d+.*|.*\\d+.*"
+    },
+    "assumptions": {
+      "type": "array",
+      "description": "List of assumptions being made",
+      "items": {
+        "type": "string"
+      }
+    },
+    "kill_criteria": {
+      "type": "array",
+      "description": "Pre-registered criteria that would kill the project",
+      "items": {
+        "type": "string"
+      }
+    },
+    "verification_plan": {
+      "type": "array",
+      "description": "Plan for verification with specific commands",
+      "items": {
+        "type": "string"
+      }
+    },
+    "terminal_outcomes": {
+      "type": "array",
+      "description": "Terminal outcomes as a DAG",
+      "items": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "description": "Unique identifier for this outcome"
+          },
+          "job": {
+            "type": "string",
+            "description": "Job-to-be-done for this outcome"
+          },
+          "north_star_metric": {
+            "type": "string",
+            "description": "Falsifiable metric for this outcome"
+          },
+          "depends_on": {
+            "type": "array",
+            "description": "Outcomes this depends on (empty if independent)",
+            "items": {
+              "type": "string"
+            }
+          },
+          "independent": {
+            "type": "boolean",
+            "description": "Whether this outcome can run in parallel"
+          }
+        },
+        "required": ["slug", "job", "north_star_metric"]
+      }
+    }
+  },
+  "required": ["job", "north_star_metric"]
+}

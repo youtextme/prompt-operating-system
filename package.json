@@ -1,0 +1,31 @@
+{
+  "name": "prompt-operating-system",
+  "version": "2.0.0",
+  "description": "One install. Every IDE and CLI. Objective contracts. Machine-enforced evidence.",
+  "main": "install.mjs",
+  "bin": {
+    "pos": "./bin/pos.mjs"
+  },
+  "scripts": {
+    "install": "node install.mjs",
+    "doctor": "node bin/pos.mjs doctor",
+    "test": "node bin/pos.mjs doctor"
+  },
+  "keywords": [
+    "prompt-os",
+    "ai",
+    "agents",
+    "verification",
+    "contracts",
+    "outcome-os"
+  ],
+  "author": "youtextme",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/youtextme/prompt-operating-system.git"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
