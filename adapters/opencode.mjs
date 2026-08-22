@@ -21,7 +21,8 @@ export async function wireOpenCode({ home, routerPath }) {
   if (existsSync(configPath)) {
     const raw = readFileSync(configPath, "utf8").replace(/^\uFEFF/, "");
     try {
-      config = JSON.parse(raw.replace(/\/\/.*$/gm, "").replace(/,\s*([\]}])/g, "$1"));
+      const stripJsonc = (s) => s.replace(/"(?:\\.|[^"\\])*"|\/\/[^\n]*|\/\*[\s\S]*?\*\//g, (m) => (m.startsWith('"') ? m : ""));
+      config = JSON.parse(stripJsonc(raw).replace(/,\s*([\]}])/g, "$1"));
     } catch {
       config = { $schema: "https://opencode.ai/config.json" };
     }

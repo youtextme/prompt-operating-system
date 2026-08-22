@@ -32,7 +32,8 @@ export async function wireEnforce({ home = homedir(), posRoot, routerPath, mode 
     if (existsSync(opencodePath)) {
       try {
         let raw = readFileSync(opencodePath, "utf8").replace(/^\uFEFF/, "");
-        const config = JSON.parse(raw.replace(/\/\/.*$/gm, "").replace(/,\s*([\]}])/g, "$1"));
+        const stripJsonc = (s) => s.replace(/"(?:\\.|[^"\\])*"|\/\/[^\n]*|\/\*[\s\S]*?\*\//g, (m) => (m.startsWith('"') ? m : ""));
+        const config = JSON.parse(stripJsonc(raw).replace(/,\s*([\]}])/g, "$1"));
         config.openai = { ...(config.openai || {}), baseURL: GATEWAY };
         config.env = { ...(config.env || {}), OPENAI_BASE_URL: GATEWAY, OPENAI_API_BASE: GATEWAY, OLLAMA_HOST: "127.0.0.1:8555" };
         writeFileSync(opencodePath, JSON.stringify(config, null, 2) + "\n", "utf8");
