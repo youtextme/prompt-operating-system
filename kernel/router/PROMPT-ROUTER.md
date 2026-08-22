@@ -27,6 +27,16 @@ Validate non-trivial intake against `~/.agents/prompt-os/schemas/intake.schema.j
 
 A prompt may compile to **multiple terminal outcomes** (independent or dependent contracts). Each branch gets its own metric and kill criteria. Execute sequentially when dependent; parallel when independent.
 
+### NoOneBigShotOutcome (tenet 9)
+
+If estimated effort is **>2 hours**, spans **>1 session**, or the human asked for **steady incremental delivery**:
+
+1. Create a **program contract** (`Status: active`) with North Star for the whole job.
+2. Decompose into **slices** in `~/.agents/prompt-os/programs/<slug>/slices/` — each slice has: human-usable deliverable, human verification steps, optional automated gate.
+3. Work **one slice at a time** to `proven`; commit after each slice; human can stop and still retain value.
+4. Research-heavy slices must land **structured artifacts** (sourced matrix, flow diagram, metric table) — not chat summary.
+5. Do **not** collapse a multi-day program into a single Ralph loop or one `proven` stamp at the end.
+
 ## Step 2.5 — Bar-raiser gate (BarRaiserBoard — before building)
 
 Before product code:
@@ -78,6 +88,10 @@ L1 Formal → L2 Programmatic → L3 Adversarial → L4 Multi-judge (minority ve
 **FeedbackLoop**: every terminal outcome ends with ≤3 high-leverage questions for human input (secrets, strategic preferences) — not permission theater.
 
 **Evolve&Improve**: move contract to `completed/`; append `~/.agents/prompt-os/evolve/log.md`; run `index-evolve.mjs`. Promote to constitution only after ≥3 surviving outcomes. Ralph loops capped at 12.
+
+**Reward G**: score each slice via `reward.mjs` — maximize adoptability + thoroughness + oracle credit (real-world adoption objective).
+
+**Sandbox**: `pos sandbox "<prompt>" --gist` or `/possandbox` — dry-run trace with variables, variance, guardrails before building.
 
 ## Compute routing
 

@@ -7,6 +7,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { gradeSlice } from "./program.mjs";
 
 const REQUIRED_HEADINGS = [
   "## Job",
@@ -130,11 +131,21 @@ function siblingEvidence(contractPath) {
 
 function main(argv) {
   const claimDone = argv.includes("--done");
+  const sliceMode = argv.includes("--slice");
   const pathArg = argv.find((a) => !a.startsWith("-"));
   const contractPath = pathArg ? resolve(pathArg) : findActiveContracts()[0] || "";
+  const contractText = contractPath ? read(contractPath) : "";
+  const evidenceText = contractPath ? siblingEvidence(contractPath) : "";
+
+  if (sliceMode) {
+    const result = gradeSlice({ sliceText: contractText, evidenceText, claimDone });
+    process.stdout.write(JSON.stringify({ ...result, slicePath: contractPath || null, root: osRoot() }) + "\n");
+    process.exit(result.code);
+  }
+
   const result = grade({
-    contractText: contractPath ? read(contractPath) : "",
-    evidenceText: contractPath ? siblingEvidence(contractPath) : "",
+    contractText,
+    evidenceText,
     claimDone,
   });
   process.stdout.write(JSON.stringify({ ...result, contractPath: contractPath || null, root: osRoot() }) + "\n");

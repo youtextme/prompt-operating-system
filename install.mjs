@@ -5,15 +5,13 @@
  * Usage:
  *   node install.mjs [--force] [--with-hub] [--dry-run]
  */
+import { spawnSync } from "node:child_process";
 import {
   cpSync,
   existsSync,
   mkdirSync,
   readdirSync,
   readFileSync,
-  renameSync,
-  rmSync,
-  statSync,
   writeFileSync,
 } from "node:fs";
 import { homedir, platform } from "node:os";
@@ -25,6 +23,7 @@ const __dir = dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
 const force = argv.includes("--force");
 const withHub = argv.includes("--with-hub");
+const withKit = argv.includes("--with-kit");
 const dryRun = argv.includes("--dry-run");
 
 const home = homedir();
@@ -57,6 +56,9 @@ function copyKernel() {
   }
   mkdirSync(routerDir, { recursive: true });
   cpSync(join(src, "router", "PROMPT-ROUTER.md"), join(routerDir, "PROMPT-ROUTER.md"), { force: true });
+  if (existsSync(join(__dir, "adapters"))) {
+    cpSync(join(__dir, "adapters"), join(posRoot, "adapters"), { recursive: true, force: true });
+  }
 }
 
 function migrateLegacy() {
@@ -96,9 +98,13 @@ function ensureDirs() {
   for (const d of [
     join(posRoot, "contracts", "active"),
     join(posRoot, "contracts", "completed"),
+    join(posRoot, "programs"),
+    join(posRoot, "traces"),
+    join(posRoot, "state"),
+    join(posRoot, "benchmarks"),
     join(posRoot, "evolve"),
     join(posRoot, "audit"),
-    join(posRoot, "benchmarks"),
+    join(posRoot, "skills", "community"),
   ]) {
     mkdirSync(d, { recursive: true });
   }
@@ -145,6 +151,22 @@ async function main() {
   ensureDirs();
 
   if (withHub) await installHub();
+
+  if (withKit || argv.includes("--with-kit")) {
+    const kitScript = join(__dir, "kit", "install-kit.mjs");
+    if (existsSync(kitScript)) {
+      spawnSync(process.execPath, [kitScript], { stdio: "inherit" });
+    }
+  }
+
+  // Copy possandbox skill to Cursor if present
+  const skillSrc = join(__dir, "skills", "possandbox");
+  const skillDest = join(home, ".cursor", "skills", "possandbox");
+  if (existsSync(skillSrc)) {
+    mkdirSync(join(home, ".cursor", "skills"), { recursive: true });
+    cpSync(skillSrc, skillDest, { recursive: true, force: true });
+    log(`  skill: possandbox → ${skillDest}`);
+  }
 
   const wired = await wireAll({ home, posRoot, routerPath: join(routerDir, "PROMPT-ROUTER.md") });
   writeManifest(wired);

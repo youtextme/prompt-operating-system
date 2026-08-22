@@ -1,4 +1,4 @@
-# The Eight Immutable Tenets of Prompt OS
+# The Nine Immutable Tenets of Prompt OS
 
 These tenets reconcile the POS kernel spec with research-backed verification (2025–2026). Every install enforces them via router law + executable scripts.
 
@@ -12,6 +12,19 @@ These tenets reconcile the POS kernel spec with research-backed verification (20
 | 6 | **FeedbackLoop** | Human engaged at highest-leverage moments only | ≤3 structured questions at outcome gates; not permission theater |
 | 7 | **FormulasAndBooleans** | Success = exit codes and formulas, not vibes | `evidence-check.mjs`, `watchdog.mjs`, VPR turn-level oracles |
 | 8 | **Evolve&Improve** | Bounded recursive self-improvement | Golden failure benchmark + A/B patch promotion + 3-outcome constitution rule |
+| 9 | **NoOneBigShotOutcome** | Deliver outcome in human-verifiable slices; every slice is usable on its own | Program contract + `slices/` queue; `evidence-check --slice`; program stays `active` until all slices proven or killed |
+
+### NoOneBigShotOutcome (tenet 9) — definition
+
+Large objectives (multi-hour research, many agents, company-scale product) **must not** wait for one final “big bang” ship.
+
+- A **program** (e.g. “baby names browse engine”) decomposes into an ordered **slice queue**.
+- Each **slice** ships a **human-usable artifact** (URL, doc, chart, prototype screen, dataset) plus a **human-verifiable checklist** (what to click/read/run).
+- A slice is `proven` when that checklist passes and receipts exist — the program may remain `active`.
+- Needle-moving work continues slice-by-slice (research tranche → competitive matrix → flow wireframe → MVP route → …).
+- “100 agents for 8 hours” is orchestration over slices, not one monolithic contract.
+
+**Not allowed:** marking the whole program `proven` because “we worked hard” or “tests pass on a stub” while the human cannot use intermediate value.
 
 ## Verification hierarchy (cross-cutting)
 

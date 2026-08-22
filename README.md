@@ -36,6 +36,7 @@ node install.mjs
 |------|--------|
 | `--force` | Replace existing install (backs up to `~/.agents/.backup-*`) |
 | `--with-hub` | Install local LLM hub on port 8555 (Ollama required) |
+| `--with-kit` | Pin VibeSetup skill repos (Superpowers, grill-me, Ralph, etc.) |
 | `--dry-run` | Show plan without writing |
 
 ### What install does
@@ -49,11 +50,17 @@ node install.mjs
 ### Verify
 
 ```bash
-node ~/.agents/prompt-os/../prompt-operating-system/bin/pos.mjs doctor
-# or after clone:
 npm test
 node bin/pos.mjs doctor
 ```
+
+### `/possandbox` — prompt validator
+
+```bash
+pos sandbox "your prompt here" --gist
+```
+
+Traces: `~/.agents/prompt-os/traces/`. Skill: `~/.cursor/skills/possandbox`. See [docs/PRIMITIVES.md](docs/PRIMITIVES.md).
 
 ---
 

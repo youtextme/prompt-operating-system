@@ -1,0 +1,13 @@
+{
+  "version": "1.0.0",
+  "description": "VibeSetup-compatible skill kit (pinned on install --with-kit)",
+  "repos": [
+    { "id": "superpowers", "owner": "obra", "repo": "superpowers", "role": "methodology" },
+    { "id": "agent-skills", "owner": "addyosmani", "repo": "agent-skills", "role": "specialty", "dedupe": ["tdd"] },
+    { "id": "grill-me", "owner": "mattpocock", "repo": "skills", "role": "intake", "paths": ["grill-me"] },
+    { "id": "anthropic-skills", "owner": "anthropics", "repo": "skills", "role": "design", "paths": ["frontend-design", "webapp-testing"] },
+    { "id": "ralph", "owner": "snarktank", "repo": "ralph", "role": "loop", "maxIterations": 12 },
+    { "id": "app-store", "owner": "safaiyeh", "repo": "app-store-review-skill", "role": "store", "optional": true },
+    { "id": "ccusage", "owner": "ccusage", "repo": "ccusage", "role": "cost", "npx": "ccusage" }
+  ]
+}
