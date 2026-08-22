@@ -196,6 +196,23 @@ function cmdOn() {
   process.stdout.write(`  manifest: ${manifestPath()}\n`);
   process.stdout.write(`  cursor hook: ${hooks.cursor || "skipped"}\n`);
   for (const e of env) process.stdout.write(`  env ${e.key}=${e.val} ${e.ok ? "ok" : "FAIL"}\n`);
+  // Also wire opencode gateway (dual-path, preserves provider)
+  const GATEWAY = "http://127.0.0.1:8555/v1";
+  const stripJsonc = (s) => s.replace(/"(?:\\.|[^"\\])*"|\/\/[^\n]*|\/\*[\s\S]*?\*\//g, (m) => (m.startsWith('"') ? m : ""));
+  for (const p of [join(home, "AppData/Roaming/opencode/opencode.jsonc"), join(home, ".config/opencode/opencode.jsonc")]) {
+    if (existsSync(p)) {
+      try {
+        const raw = readFileSync(p, "utf8").replace(/^\uFEFF/, "");
+        const cfg = JSON.parse(stripJsonc(raw).replace(/,\s*([\]}])/g, "$1"));
+        cfg.openai = { ...(cfg.openai || {}), baseURL: GATEWAY };
+        cfg.env = { ...(cfg.env || {}), OPENAI_BASE_URL: GATEWAY, OPENAI_API_BASE: GATEWAY, OLLAMA_HOST: "127.0.0.1:8555" };
+        writeFileSync(p, JSON.stringify(cfg, null, 2) + "\n", "utf8");
+        process.stdout.write(`  opencode gateway: ${p} ok\n`);
+      } catch (e) {
+        process.stdout.write(`  opencode gateway: ${p} FAIL ${e.message}\n`);
+      }
+    }
+  }
   process.stdout.write("\nStart gateway: pos gateway\n");
   process.stdout.write("Verify: pos enforce doctor --strict\n");
 }
