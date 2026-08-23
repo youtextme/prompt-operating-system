@@ -123,7 +123,7 @@ node ~/.agents/prompt-os/scripts/audit.mjs append --actor builder --action "test
 | VS Code Copilot | `copilot-instructions.md` |
 | OpenClaw | `workspace/AGENTS.md` |
 | Windsurf | rules file |
-| Continue / Devin | detected + documented |
+| Continue / Devin | Devin: repo `.devin/` + `~/.devin/PROMPT-OS.md` |
 
 Wiring state: `~/.agents/prompt-os/WIRING.json`
 

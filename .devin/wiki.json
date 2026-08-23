@@ -1,0 +1,13 @@
+{
+  "playbooks": [
+    ".devin/playbooks/ship-capability.md"
+  ],
+  "knowledge": [
+    ".devin/knowledge/prompt-os.md",
+    ".devin/knowledge/lint.md",
+    ".devin/knowledge/test.md"
+  ],
+  "rules": [
+    ".devin/global_rules.md"
+  ]
+}

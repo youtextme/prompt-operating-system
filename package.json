@@ -1,6 +1,6 @@
 {
   "name": "prompt-operating-system",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "description": "Universal Prompt OS — one install, every IDE and CLI routes through objective contracts and machine-enforced evidence. v3.3 cook+status+trust lines, Outcome Frame gate, skip promptOS bypass.",
   "type": "module",
   "license": "MIT",
@@ -10,7 +10,7 @@
   "scripts": {
     "install:local": "node install.mjs",
     "doctor": "node bin/pos.mjs doctor",
-    "test": "node kernel/lib/status-law.test.mjs && node kernel/enforce/inject.test.mjs && node kernel/scripts/evidence-check.test.mjs && node kernel/scripts/watchdog.mjs --self-test && node kernel/scripts/possandbox.test.mjs"
+    "test": "node kernel/lib/status-law.test.mjs && node adapters/devin.test.mjs && node kernel/enforce/inject.test.mjs && node kernel/scripts/evidence-check.test.mjs && node kernel/scripts/watchdog.mjs --self-test && node kernel/scripts/possandbox.test.mjs"
   },
   "engines": {
     "node": ">=20"
