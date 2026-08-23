@@ -57,6 +57,7 @@ function copyKernel() {
   }
   mkdirSync(routerDir, { recursive: true });
   cpSync(join(src, "router", "PROMPT-ROUTER.md"), join(routerDir, "PROMPT-ROUTER.md"), { force: true });
+  cpSync(join(src, "router", "STATUS-LAW.md"), join(routerDir, "STATUS-LAW.md"), { force: true });
   if (existsSync(join(__dir, "adapters"))) {
     cpSync(join(__dir, "adapters"), join(posRoot, "adapters"), { recursive: true, force: true });
   }
@@ -87,7 +88,7 @@ function migrateLegacy() {
 
 function writeManifest(wired) {
   const manifest = {
-    version: "3.0.0",
+    version: "3.3.0",
     installedAt: new Date().toISOString(),
     posRoot,
     router: join(routerDir, "PROMPT-ROUTER.md"),

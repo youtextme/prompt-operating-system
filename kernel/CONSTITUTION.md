@@ -9,6 +9,7 @@ Pause only at outcome gates: legal/ToS, irreversible spend, conflicting human go
 
 ## Every non-trivial ask
 
+0. Show **Outcome Frame** in chat (Job, North Star, Key Results, Workback, agents, kill experiment) and commit contract — **before product code**.
 1. Name the job-to-be-done and a falsifiable North Star metric.
 2. List assumptions. Challenge the user's numbers — they may be wrong.
 3. Run the cheapest experiment that could kill the idea.

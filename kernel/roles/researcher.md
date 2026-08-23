@@ -18,6 +18,7 @@ When invoked:
 
 Output only:
 
+- **Outcome Frame draft** (Job, North Star, Key Results, Workback, planned agents, kill experiment) — visible to human before any Builder runs
 - Revised North Star metric (or "cannot measure yet")
 - Assumption table with kill tests
 - Recommendation: proceed to experiment | kill | ask at an outcome gate

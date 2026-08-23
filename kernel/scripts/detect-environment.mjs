@@ -66,13 +66,13 @@ function nodeInfo() {
   return { version: process.version, execPath: process.execPath };
 }
 
-function computeTier(models, gpu) {
+function computeTier(models, gpu, detectToolsFn) {
   if (models.length > 0) {
     const big = models.some((m) => /70b|72b|79b|coder-next/i.test(m.name || ""));
     if (big || gpu.available) return "local-capable";
     return "local-light";
   }
-  const tools = detectTools(homedir());
+  const tools = detectToolsFn(homedir());
   if (tools.some((t) => t.id === "cursor" && t.detected)) return "frontier-primary";
   return "unknown";
 }
@@ -100,7 +100,7 @@ export async function detectEnvironment() {
     },
     hub: { port: 8555, configured: existsSync(join(osRoot(), "hub", "server.mjs")) },
     tools: detectTools(homedir()).filter((t) => t.detected).map((t) => t.id),
-    computeTier: computeTier(models, gpu),
+    computeTier: computeTier(models, gpu, detectTools),
   };
 
   const wiring = join(osRoot(), "WIRING.json");

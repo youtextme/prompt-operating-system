@@ -1,4 +1,4 @@
-# HEALTH NUDGES — Jillu Micro-Movement Library
+# HEALTH NUDGES — micro-break library (v3.3)
 
 500 unique one-liners. Every assistant response MUST end with exactly one line drawn from
 this list, prefixed `💪`, never repeating within a session. Rotate with `nudges/next.mjs`

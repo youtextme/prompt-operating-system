@@ -15,6 +15,27 @@ Owner surface: Cursor | OpenClaw | both
 - Window:
 - How measured (eval, interview, production, simulation):
 
+## Key Results
+
+| ID | Result | Evidence |
+|----|--------|----------|
+| KR1 | | |
+| KR2 | | |
+
+## Workback (slices)
+
+1. …
+2. …
+
+## Planned agents
+
+| Role | When | Parallel? |
+|------|------|-----------|
+| Researcher | Before build | |
+| Experimenter | After research | |
+| Builder | After contract active | |
+| Evaluator | Before proven | never Builder |
+
 ## Assumptions (falsify these)
 
 | ID | Assumption | How to kill it | Result |
