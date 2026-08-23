@@ -3,7 +3,7 @@
  * Canonical source. Router detail: kernel/router/STATUS-LAW.md
  */
 
-export const STATUS_LAW_VERSION = "3.3.0";
+export const STATUS_LAW_VERSION = "3.3.1";
 
 /** One-line compact law for injection preambles and YAML customInstructions. */
 export const STATUS_LAW_COMPACT = [
@@ -51,12 +51,14 @@ Raw ollama serve (11434) does NOT auto-load POS — use OpenHands/Cursor/opencod
 
 /** Devin knowledge file body. */
 export function devinKnowledge(routerPath, posRoot) {
-  return `# Devin — Prompt OS
+  return `# Devin — Prompt OS ${STATUS_LAW_VERSION}
 
 Load before sessions:
 
 1. \`${routerPath}\`
 2. \`${posRoot}/CONSTITUTION.md\`
+
+**Deprecated:** Jillu banner / BANNER LAW — never use. Use STATUS LAW below.
 
 Non-trivial → outcome contract + evaluator. Builder ≠ Evaluator.
 

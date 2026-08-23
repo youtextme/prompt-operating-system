@@ -1,6 +1,21 @@
 # Prompt Operating System — CHANGES
 
-## v3.3.0 — Status messaging + Outcome Frame gate (2026-08-23)
+## v3.3.1 — Devin Cloud wiring (2026-08-23)
+
+### Problem
+Devin Cloud reads **repo `.devin/`**, not `~/.devin/PROMPT-OS.md` on your PC. Without committed `.devin/`, Devin kept stale Jillu v3.2 rules from old Knowledge or cached sessions.
+
+### Fix
+- Committed `.devin/` (global_rules, knowledge/prompt-os.md, wiki.json, playbooks)
+- `wireDevinRepo()` refreshes repo `.devin/` on every `install.mjs --force`
+- Migrates legacy Jillu/BANNER LAW text in existing `.devin/global_rules.md`
+- `templates/devin/` for wiring other repos
+
+### Devin users — action required
+1. Pull `main` (includes `.devin/`)
+2. **Start a new Devin session** on the repo (old sessions cache stale rules)
+3. In Devin dashboard → **remove** any Knowledge entry that still mentions Jillu or v3.2 BANNER LAW
+
 
 ### Problem
 - Jillu banner felt childish and wasted tokens without telling humans **what** was happening

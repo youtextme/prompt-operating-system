@@ -88,7 +88,7 @@ function migrateLegacy() {
 
 function writeManifest(wired) {
   const manifest = {
-    version: "3.3.0",
+    version: "3.3.1",
     installedAt: new Date().toISOString(),
     posRoot,
     router: join(routerDir, "PROMPT-ROUTER.md"),
@@ -179,6 +179,7 @@ async function main() {
     posRoot,
     routerPath: join(routerDir, "PROMPT-ROUTER.md"),
     enforce,
+    repoRoot: __dir,
   });
   writeManifest(wired);
 

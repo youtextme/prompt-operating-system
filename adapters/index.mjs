@@ -48,13 +48,15 @@ export function detectTools(home = homedir()) {
   ];
 }
 
-export async function wireAll({ home, posRoot, routerPath, enforce = false }) {
+export async function wireAll({ home, posRoot, routerPath, enforce = false, repoRoot = null }) {
   const results = [];
-  const ctx = { home, posRoot, routerPath };
+  const ctx = { home, posRoot, routerPath, repoRoot };
 
   for (const fn of [wireCursor, wireOpenCode, wireClaude, wireVSCode, wireOpenClaw, wireOpenHands, wireDevin, wireOllama]) {
     try {
-      results.push(await fn(ctx));
+      const out = await fn(ctx);
+      if (Array.isArray(out)) results.push(...out);
+      else results.push(out);
     } catch (err) {
       results.push({ tool: fn.name, status: "error", detail: String(err.message || err) });
     }
@@ -92,12 +94,12 @@ export async function wireAll({ home, posRoot, routerPath, enforce = false }) {
     }
   }
 
-  // Devin fallback note if only detected
-  if (existsSync(join(home, ".devin")) && !results.some((r) => r.tool === "devin" && r.status === "wired")) {
+  // Devin fallback note if repo .devin missing prompt-os knowledge
+  if (!results.some((r) => r.tool === "devin-repo" && r.status === "wired")) {
     results.push({
       tool: "devin",
       status: "detected",
-      detail: "See ~/.devin/PROMPT-OS.md",
+      detail: "Run install from repo clone to wire .devin/ for Devin Cloud",
     });
   }
 
