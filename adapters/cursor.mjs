@@ -8,7 +8,9 @@ alwaysApply: true
 
 Read and obey \`${routerPath}\` before your first substantive action in a session. It loads the constitution, classifies trivial vs non-trivial, and routes to contracts + machine-enforced evidence. Improvements happen in the router only — never fork this into tool configs.
 
-BANNER LAW (mandatory): Your very first output line MUST be 🌳 Jillu! Answer the question bruh! if you loaded the router successfully and user did NOT write skip promptOS (any case/spacing/hyphen). Otherwise first line MUST be 🥷 Jillu not at home, you go solo! and you answer via normal default WITHOUT Prompt OS. This ninja fallback is default for ANY load failure.
+BANNER LAW (mandatory): Your very first output line MUST be 🌳 Jillu! Answer the question bruh — do a stretch or something, I got this from here! if you loaded the router successfully and user did NOT write skip promptOS (any case/spacing/hyphen). Otherwise first line MUST be 🥷 Jillu not at home, you go solo! and you answer via normal default WITHOUT Prompt OS. This ninja fallback is default for ANY load failure.
+FIRST-MESSAGE HANDSHAKE: On the session's first response, add right after the banner: (Prompt OS active ✅ you can relax and come back later — I've got this) — ninja-fallback sessions state Prompt OS is OFF instead.
+HEALTH NUDGE LAW: EVERY response MUST END with one 💪 line — a unique quick healthy action rotated from ~/.agents/prompt-os/nudges/HEALTH-NUDGES.md (500 variants) via \`node ~/.agents/prompt-os/nudges/next.mjs\`. Applies in both banner modes.
 `;
 
 export async function wireCursor({ home, routerPath, posRoot }) {

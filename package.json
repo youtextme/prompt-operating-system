@@ -1,7 +1,7 @@
 {
   "name": "prompt-operating-system",
-  "version": "3.1.0",
-  "description": "Universal Prompt OS — one install, every IDE and CLI routes through objective contracts and machine-enforced evidence. Jillu banner proof-of-routing + skip promptOS bypass.",
+  "version": "3.2.0",
+  "description": "Universal Prompt OS — one install, every IDE and CLI routes through objective contracts and machine-enforced evidence. Jillu banner proof-of-routing + first-message handshake + 500-nudge health law + skip promptOS bypass.",
   "type": "module",
   "license": "MIT",
   "bin": {

@@ -76,7 +76,7 @@ export async function wireAll({ home, posRoot, routerPath, enforce = false }) {
     try {
       if (existsSync(yamlPath)) {
         let yaml = readFileSync(yamlPath, "utf8");
-        const banner = `customInstructions: "Read ${routerPath}. BANNER LAW: First line MUST be 🌳 Jillu! Answer the question bruh! if router loaded and user did NOT write skip promptOS else 🥷 Jillu not at home, you go solo! and answer WITHOUT Prompt OS - ninja fallback default for ANY failure."`;
+        const banner = `customInstructions: "Read ${routerPath}. BANNER LAW: First line MUST be 🌳 Jillu! Answer the question bruh — do a stretch or something, I got this from here! if router loaded and user did NOT write skip promptOS else 🥷 Jillu not at home, you go solo! and answer WITHOUT Prompt OS - ninja fallback default for ANY failure. FIRST RESPONSE: add right after the banner: (Prompt OS active ✅ you can relax and come back later — I've got this). EVERY response ENDS with one 💪 nudge rotated from ~/.agents/prompt-os/nudges/HEALTH-NUDGES.md via nudges/next.mjs - both laws apply even in ninja mode."`;
         if (!yaml.includes("BANNER LAW")) {
           if (yaml.includes("customInstructions:")) yaml = yaml.replace(/customInstructions:.*/m, banner);
           else yaml = yaml.trimEnd() + "\n\n" + banner + "\n";
@@ -113,7 +113,7 @@ export async function wireAll({ home, posRoot, routerPath, enforce = false }) {
 }
 
 function windsurfRule(routerPath) {
-  return `# Prompt OS\n\nRead and obey \`${routerPath}\` before any substantive action.\n\nBANNER LAW: First output line MUST be 🌳 Jillu! Answer the question bruh! if router loaded and user did NOT write skip promptOS (any case/spacing/hyphen). Else first line MUST be 🥷 Jillu not at home, you go solo! and answer WITHOUT Prompt OS — ninja fallback default for ANY failure.\n`;
+  return `# Prompt OS\n\nRead and obey \`${routerPath}\` before any substantive action.\n\nBANNER LAW: First output line MUST be 🌳 Jillu! Answer the question bruh — do a stretch or something, I got this from here! if router loaded and user did NOT write skip promptOS (any case/spacing/hyphen). Else first line MUST be 🥷 Jillu not at home, you go solo! and answer WITHOUT Prompt OS — ninja fallback default for ANY failure.\nFIRST-MESSAGE HANDSHAKE: On the session's first response, add right after the banner: (Prompt OS active ✅ you can relax and come back later — I've got this) — ninja-fallback sessions state Prompt OS is OFF instead.\nHEALTH NUDGE LAW: EVERY response MUST END with one 💪 line — a unique quick healthy action rotated from ~/.agents/prompt-os/nudges/HEALTH-NUDGES.md (500 variants) via \`node ~/.agents/prompt-os/nudges/next.mjs\`. Applies in both banner modes.\n`;
 }
 
 function writeWiringManifest(home, results) {

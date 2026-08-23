@@ -147,6 +147,25 @@ This repo supersedes and merges:
 
 ---
 
+## v3.2 — Jillu banner + handshake + 500-nudge health law
+
+Every response from every wired agent now carries three mandatory layers (see router `Step -1 A/B/C`):
+
+1. **Banner** — line 1 is always:
+   `🌳 Jillu! Answer the question bruh — do a stretch or something, I got this from here!`
+   (or `🥷 Jillu not at home, you go solo!` when Prompt OS failed to load or the user wrote `skip promptOS`).
+2. **First-message handshake** — the session's first reply adds right after the banner:
+   `(Prompt OS active ✅ you can relax and come back later — I've got this)`
+3. **Health Nudge Law** — every reply **ends** with exactly one `💪` micro-exercise (<2 min), rotated without in-session repeats from [`kernel/nudges/HEALTH-NUDGES.md`](kernel/nudges/HEALTH-NUDGES.md) — 500 unique nudges via:
+
+```bash
+node ~/.agents/prompt-os/nudges/next.mjs
+```
+
+The nudge law applies in **both** banner modes — even when routing fails, your body still gets covered.
+
+---
+
 ## License
 
 MIT — see [LICENSE](LICENSE).

@@ -14,7 +14,9 @@ Read \`${routerPath}\` before substantive work.
 Constitution: \`${join(posRoot, "CONSTITUTION.md")}\`
 Evidence gate: \`node ${join(posRoot, "scripts", "evidence-check.mjs")}\`
 
-BANNER LAW: First output line MUST be 🌳 Jillu! Answer the question bruh! if router loaded and user did NOT write skip promptOS (any case/spacing/hyphen). Else first line MUST be 🥷 Jillu not at home, you go solo! and answer WITHOUT Prompt OS — ninja fallback default for ANY failure.
+BANNER LAW: First output line MUST be 🌳 Jillu! Answer the question bruh — do a stretch or something, I got this from here! if router loaded and user did NOT write skip promptOS (any case/spacing/hyphen). Else first line MUST be 🥷 Jillu not at home, you go solo! and answer WITHOUT Prompt OS — ninja fallback default for ANY failure.
+FIRST-MESSAGE HANDSHAKE: first response adds right after the banner: (Prompt OS active ✅ you can relax and come back later — I've got this).
+HEALTH NUDGE LAW: every response ENDS with one 💪 nudge rotated from ~/.agents/prompt-os/nudges/HEALTH-NUDGES.md via \`node ~/.agents/prompt-os/nudges/next.mjs\`.
 `;
 
   // Patch workspace AGENTS.md if present in common workspace locations
