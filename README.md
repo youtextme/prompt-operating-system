@@ -50,7 +50,17 @@ node install.mjs
 4. **Detects and wires** installed tools: Cursor, VS Code, opencode, Claude Code, OpenClaw, Windsurf, Continue, Devin
 5. Replaces prior POS wiring (legacy Outcome OS rules → Prompt OS)
 
+### Cursor Cloud
+
+Cloud agents do not inherit your PC `~/.agents/prompt-os`. This repo ships:
+
+- `.cursor/environment.json` → `bash scripts/cloud-install.sh` (runs `node install.mjs --force` from the checkout)
+- `bash scripts/cloud-start.sh` starts the gateway on `:8555` each boot
+
+Create/select a Cloud Agent environment for this repository and enable builds after the install script succeeds.
+
 ### Verify
+
 
 ```bash
 npm test
