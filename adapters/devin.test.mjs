@@ -14,7 +14,7 @@ test("wireDevinRepo writes v3.3 knowledge without Jillu", async () => {
   mkdirSync(join(repo, ".devin"), { recursive: true });
   writeFileSync(
     join(repo, ".devin", "global_rules.md"),
-    "BANNER LAW: Jillu! Answer the question bruh\n",
+    "BANNER LAW: First line MUST be 🌳 Jillu! Answer the question bruh\n",
     "utf8",
   );
   writeFileSync(join(repo, ".devin", "wiki.json"), '{"knowledge":[],"rules":[]}\n', "utf8");

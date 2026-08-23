@@ -26,6 +26,11 @@ const withHub = argv.includes("--with-hub") || argv.includes("--enforce") || !ar
 const withKit = argv.includes("--with-kit");
 const enforce = !argv.includes("--soft");
 const dryRun = argv.includes("--dry-run");
+const repoFlagIdx = argv.indexOf("--repo");
+const repoRoot =
+  repoFlagIdx >= 0 && argv[repoFlagIdx + 1]
+    ? resolve(argv[repoFlagIdx + 1])
+    : __dir;
 
 const home = homedir();
 const agentsRoot = join(home, ".agents");
@@ -88,7 +93,7 @@ function migrateLegacy() {
 
 function writeManifest(wired) {
   const manifest = {
-    version: "3.3.1",
+    version: "3.3.2",
     installedAt: new Date().toISOString(),
     posRoot,
     router: join(routerDir, "PROMPT-ROUTER.md"),
@@ -133,6 +138,7 @@ async function installHub() {
 async function main() {
   log("Prompt OS installer v3.0.0");
   log(`Target: ${posRoot}`);
+  if (repoRoot !== __dir) log(`Repo wiring: ${repoRoot}`);
 
   if (existsSync(installManifest) && !force) {
     const prev = JSON.parse(readFileSync(installManifest, "utf8"));
@@ -179,7 +185,7 @@ async function main() {
     posRoot,
     routerPath: join(routerDir, "PROMPT-ROUTER.md"),
     enforce,
-    repoRoot: __dir,
+    repoRoot,
   });
   writeManifest(wired);
 

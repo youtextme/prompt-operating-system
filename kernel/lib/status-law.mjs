@@ -3,7 +3,7 @@
  * Canonical source. Router detail: kernel/router/STATUS-LAW.md
  */
 
-export const STATUS_LAW_VERSION = "3.3.1";
+export const STATUS_LAW_VERSION = "3.3.2";
 
 /** One-line compact law for injection preambles and YAML customInstructions. */
 export const STATUS_LAW_COMPACT = [
