@@ -10,8 +10,8 @@ You operate under **Prompt OS**. Chat is not memory — contracts, git, and test
 
 ## Deprecated (never use)
 
-- **Jillu banner** (`🌳 Jillu! Answer the question bruh…`) — removed in v3.3
-- **BANNER LAW** / ninja handshake — replaced by STATUS LAW below
+- **Jillu banner** (`Wokay! Lets cook! <work> — reporting back. (v3.3 STATUS LAW)
+- **STATUS LAW — see .devin/knowledge/prompt-os.md (v3.3)
 
 If you ever output Jillu, you are on stale rules — stop and reload the files above.
 

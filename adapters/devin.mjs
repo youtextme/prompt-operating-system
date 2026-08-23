@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync, cpSync
 import { join } from "node:path";
 import { devinKnowledge, STATUS_LAW_VERSION } from "./status-law.mjs";
 
-const JILLU_PATTERN = /Jillu|Answer the question bruh|BANNER LAW|ninja fallback/i;
+const JILLU_PATTERN = /🌳 Jillu|Answer the question bruh|BANNER LAW \(mandatory\)|BANNER LAW: First/i;
 
 function stripLegacyBanner(text) {
   if (!JILLU_PATTERN.test(text)) return text;
@@ -41,7 +41,7 @@ export async function wireDevinRepo({ repoRoot, routerPath, posRoot }) {
   );
 
   const globalRules = join(devinDir, "global_rules.md");
-  if (existsSync(globalRules)) {
+  if (existsSync(globalRules) && JILLU_PATTERN.test(readFileSync(globalRules, "utf8"))) {
     const before = readFileSync(globalRules, "utf8");
     let patched = stripLegacyBanner(before);
     if (!/STATUS LAW|Wokay! Lets cook!/i.test(patched)) {
