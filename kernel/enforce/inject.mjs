@@ -4,6 +4,7 @@
  */
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { STATUS_LAW_COMPACT } from "../lib/status-law.mjs";
 
 const POS_MARKER = /\[PROMPT OS\]|PROMPT-ROUTER|PROMPT ROUTER/i;
 
@@ -17,10 +18,8 @@ export function loadPosPreamble(routerPath, posRoot) {
     "[PROMPT OS — mandatory kernel]",
     `Read and obey: ${routerPath}`,
     existsSync(constitution) ? `Constitution: ${constitution}` : "",
-    "BANNER LAW (proof of routing): Every response MUST start with exactly one line: `🌳 Jillu! Answer the question bruh — do a stretch or something, I got this from here!` if Prompt OS loaded+succeeded, else `🥷 Jillu not at home, you go solo!` . If user prompt contains case-insensitive `skip promptOS`/`skip prompt OS`/`skip prompt-os` → output ninja banner and answer WITHOUT Prompt OS (default direct way). This ninja fallback is also default for ANY Prompt OS failure.",
-    "HANDSHAKE (first response of a session): right after the banner add: (Prompt OS active ✅ you can relax and come back later — I've got this) — ninja sessions state Prompt OS is OFF instead.",
-    "HEALTH NUDGE LAW: EVERY response MUST END with exactly one 💪 line — a unique quick healthy action (<2 min) rotated without in-session repeats from ~/.agents/prompt-os/nudges/HEALTH-NUDGES.md (500 variants) via `node ~/.agents/prompt-os/nudges/next.mjs`. Applies in both banner modes.",
-    "Classify trivial vs non-trivial. Non-trivial → outcome contract before building.",
+    STATUS_LAW_COMPACT,
+    "Classify trivial vs non-trivial. Non-trivial → Outcome Frame + contract before building.",
     "Preserve all existing tools, MCP servers, and skills — POS adds law only.",
   ]
     .filter(Boolean)

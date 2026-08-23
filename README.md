@@ -157,22 +157,35 @@ This repo supersedes and merges:
 
 ---
 
-## v3.2 — Jillu banner + handshake + 500-nudge health law
+## v3.3 — Cook line + status + trust (replaces Jillu banner)
 
-Every response from every wired agent now carries three mandatory layers (see router `Step -1 A/B/C`):
+Every wired agent response uses **≤4 header/footer lines** — crisp, token-light, human-trustable. See [`kernel/router/STATUS-LAW.md`](kernel/router/STATUS-LAW.md).
 
-1. **Banner** — line 1 is always:
-   `🌳 Jillu! Answer the question bruh — do a stretch or something, I got this from here!`
-   (or `🥷 Jillu not at home, you go solo!` when Prompt OS failed to load or the user wrote `skip promptOS`).
-2. **First-message handshake** — the session's first reply adds right after the banner:
-   `(Prompt OS active ✅ you can relax and come back later — I've got this)`
-3. **Health Nudge Law** — every reply **ends** with exactly one `💪` micro-exercise (<2 min), rotated without in-session repeats from [`kernel/nudges/HEALTH-NUDGES.md`](kernel/nudges/HEALTH-NUDGES.md) — 500 unique nudges via:
+1. **Cook line** — line 1:
+   `Wokay! Lets cook! <work> — reporting back.`
+   (or `Solo mode — Prompt OS off. Direct answer.` when bypass/failure)
+2. **Status line** — line 2, every turn:
+   `POS:on | phase:decompose | agents:1 [Researcher] | outcome:… | slice:1/3 | Trust:GREEN | next:…`
+3. **Session line** — first response only:
+   `Session: autonomous run — check-ins each turn; ping you at outcome gates only.`
+4. **Outcome Frame** — non-trivial work shows Job, North Star, Key Results, Workback, agents **before product code**
+5. **Micro-break** — last line: one `💪` nudge via:
 
 ```bash
 node ~/.agents/prompt-os/nudges/next.mjs
 ```
 
-The nudge law applies in **both** banner modes — even when routing fails, your body still gets covered.
+Trust: **GREEN** on track · **YELLOW** gate/uncertainty · **RED** stuck — never silent failure.
+
+---
+
+## v3.2 — Jillu banner (superseded by v3.3)
+
+<details>
+<summary>Legacy v3.2 Jillu banner (removed in v3.3)</summary>
+
+Every response previously used Jillu banner + handshake + 500-nudge health law.
+</details>
 
 ---
 

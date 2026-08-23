@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { openClawSnippet } from "./status-law.mjs";
 
 export async function wireOpenClaw({ home, routerPath, posRoot }) {
   const openclawDir = join(home, ".openclaw");
@@ -7,23 +8,12 @@ export async function wireOpenClaw({ home, routerPath, posRoot }) {
     return { tool: "openclaw", status: "skipped", detail: "not installed" };
   }
 
-  const agentsSnippet = `
-## Prompt OS (installed)
+  const evidenceScript = join(posRoot, "scripts", "evidence-check.mjs");
+  const agentsSnippet = openClawSnippet(routerPath, posRoot, evidenceScript);
 
-Read \`${routerPath}\` before substantive work.
-Constitution: \`${join(posRoot, "CONSTITUTION.md")}\`
-Evidence gate: \`node ${join(posRoot, "scripts", "evidence-check.mjs")}\`
-
-BANNER LAW: First output line MUST be 🌳 Jillu! Answer the question bruh — do a stretch or something, I got this from here! if router loaded and user did NOT write skip promptOS (any case/spacing/hyphen). Else first line MUST be 🥷 Jillu not at home, you go solo! and answer WITHOUT Prompt OS — ninja fallback default for ANY failure.
-FIRST-MESSAGE HANDSHAKE: first response adds right after the banner: (Prompt OS active ✅ you can relax and come back later — I've got this).
-HEALTH NUDGE LAW: every response ENDS with one 💪 nudge rotated from ~/.agents/prompt-os/nudges/HEALTH-NUDGES.md via \`node ~/.agents/prompt-os/nudges/next.mjs\`.
-`;
-
-  // Patch workspace AGENTS.md if present in common workspace locations
   const workspaceAgents = join(openclawDir, "workspace", "AGENTS.md");
   if (existsSync(workspaceAgents)) {
     let text = readFileSync(workspaceAgents, "utf8");
-    // Fix legacy outcome-os refs even if snippet already present
     if (/outcome-os/.test(text)) {
       text = text.replaceAll("outcome-os", "prompt-os");
       writeFileSync(workspaceAgents, text, "utf8");
@@ -31,6 +21,12 @@ HEALTH NUDGE LAW: every response ENDS with one 💪 nudge rotated from ~/.agents
     if (!/Prompt OS \(installed\)/.test(text)) {
       text = readFileSync(workspaceAgents, "utf8");
       writeFileSync(workspaceAgents, text.trimEnd() + "\n" + agentsSnippet + "\n", "utf8");
+    } else if (/Jillu|BANNER LAW/.test(text)) {
+      text = readFileSync(workspaceAgents, "utf8").replace(
+        /## Prompt OS \(installed\)[\s\S]*?(?=\n## |\n# |$)/,
+        agentsSnippet.trim() + "\n",
+      );
+      writeFileSync(workspaceAgents, text, "utf8");
     }
     return { tool: "openclaw", status: "wired", detail: workspaceAgents };
   }
