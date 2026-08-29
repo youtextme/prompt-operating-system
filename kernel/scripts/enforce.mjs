@@ -21,6 +21,12 @@ import { homedir, platform } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { enforcePaths, loadEnforceConfig } from "../enforce/gateway.mjs";
+import {
+  doctorOsLevel,
+  gatewayHealthy,
+  wireOsLevel,
+  writePosEnvFile,
+} from "./os-wire.mjs";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const home = homedir();
@@ -52,6 +58,7 @@ export function writeEnforceManifest(mode = "hard") {
       OPENAI_BASE_URL: "http://127.0.0.1:8555/v1",
       OPENAI_API_BASE: "http://127.0.0.1:8555/v1",
       OLLAMA_HOST: "127.0.0.1:8555",
+      PROMPT_OS_ROOT: posRoot(),
     },
     rings: {
       gateway: "All OpenAI/Ollama clients pointed at :8555 — prepend-only injection",
@@ -110,9 +117,10 @@ export function installEnforceHooks() {
 
 export function setUserEnvVars(manifest) {
   const vars = manifest.envVars || {};
-  const results = [];
-  for (const [key, val] of Object.entries(vars)) {
-    if (isWin) {
+  const envFile = writePosEnvFile(home, vars);
+  const results = [{ key: "pos-env-file", val: envFile, ok: true }];
+  if (isWin) {
+    for (const [key, val] of Object.entries(vars)) {
       const r = spawnSync(
         "powershell",
         [
@@ -123,16 +131,46 @@ export function setUserEnvVars(manifest) {
         { encoding: "utf8" },
       );
       results.push({ key, val, ok: r.status === 0, err: r.stderr });
-    } else {
-      const profile = join(home, ".pos-env.sh");
-      let content = existsSync(profile) ? readFileSync(profile, "utf8") : "# POS enforce env\n";
-      const line = `export ${key}="${val}"`;
-      if (!content.includes(line)) content += line + "\n";
-      writeFileSync(profile, content, "utf8");
-      results.push({ key, val, ok: true, profile });
     }
   }
   return results;
+}
+
+/** Hard enforce: manifest, hooks, env, OS-level autostart, opencode gateway. */
+export function enableHardEnforce() {
+  const manifest = writeEnforceManifest("hard");
+  const hooks = installEnforceHooks();
+  const env = setUserEnvVars(manifest);
+  const os = wireOsLevel({ home, posRoot: posRoot() });
+  wireOpencodeGateway();
+  return { manifest, hooks, env, os };
+}
+
+function wireOpencodeGateway() {
+  const GATEWAY = "http://127.0.0.1:8555/v1";
+  const stripJsonc = (s) =>
+    s.replace(/"(?:\\.|[^"\\])*"|\/\/[^\n]*|\/\*[\s\S]*?\*\//g, (m) => (m.startsWith('"') ? m : ""));
+  for (const p of [
+    join(home, "AppData/Roaming/opencode/opencode.jsonc"),
+    join(home, ".config/opencode/opencode.jsonc"),
+  ]) {
+    if (!existsSync(p)) continue;
+    try {
+      const raw = readFileSync(p, "utf8").replace(/^\uFEFF/, "");
+      const cfg = JSON.parse(stripJsonc(raw).replace(/,\s*([\]}])/g, "$1"));
+      cfg.openai = { ...(cfg.openai || {}), baseURL: GATEWAY };
+      cfg.env = {
+        ...(cfg.env || {}),
+        OPENAI_BASE_URL: GATEWAY,
+        OPENAI_API_BASE: GATEWAY,
+        OLLAMA_HOST: "127.0.0.1:8555",
+        PROMPT_OS_ROOT: posRoot(),
+      };
+      writeFileSync(p, JSON.stringify(cfg, null, 2) + "\n", "utf8");
+    } catch {
+      /* non-fatal */
+    }
+  }
 }
 
 export function doctorStrict() {
@@ -168,19 +206,16 @@ export function doctorStrict() {
     lines.push("WARN cursor hooks.json missing");
   }
 
-  // Gateway health
-  try {
-    const res = spawnSync(
-      "node",
-      ["-e", "fetch('http://127.0.0.1:8555/health').then(r=>r.json()).then(j=>console.log(JSON.stringify(j))).catch(e=>process.exit(1))"],
-      { encoding: "utf8", timeout: 3000, shell: isWin },
-    );
-    if (res.status === 0) lines.push(`ok gateway ${res.stdout.trim()}`);
-    else {
-      lines.push("WARN gateway not running — start: pos gateway");
-    }
-  } catch {
-    lines.push("WARN gateway not reachable");
+  lines.push("");
+  lines.push("OS-level rings:");
+  const osDoc = doctorOsLevel(home, manifest.posRoot);
+  for (const l of osDoc.lines) {
+    lines.push(l);
+    if (l.startsWith("FAIL")) ok = false;
+  }
+
+  if (!gatewayHealthy()) {
+    lines.push("WARN gateway not running — pos gateway or log in again after install");
   }
 
   lines.push("");
@@ -189,32 +224,19 @@ export function doctorStrict() {
 }
 
 function cmdOn() {
-  const manifest = writeEnforceManifest("hard");
-  const hooks = installEnforceHooks();
-  const env = setUserEnvVars(manifest);
-  process.stdout.write("POS enforce ON (hard mode)\n\n");
+  const { manifest, hooks, env, os } = enableHardEnforce();
+  process.stdout.write("POS enforce ON (hard mode + OS-level wiring)\n\n");
   process.stdout.write(`  manifest: ${manifestPath()}\n`);
   process.stdout.write(`  cursor hook: ${hooks.cursor || "skipped"}\n`);
-  for (const e of env) process.stdout.write(`  env ${e.key}=${e.val} ${e.ok ? "ok" : "FAIL"}\n`);
-  // Also wire opencode gateway (dual-path, preserves provider)
-  const GATEWAY = "http://127.0.0.1:8555/v1";
-  const stripJsonc = (s) => s.replace(/"(?:\\.|[^"\\])*"|\/\/[^\n]*|\/\*[\s\S]*?\*\//g, (m) => (m.startsWith('"') ? m : ""));
-  for (const p of [join(home, "AppData/Roaming/opencode/opencode.jsonc"), join(home, ".config/opencode/opencode.jsonc")]) {
-    if (existsSync(p)) {
-      try {
-        const raw = readFileSync(p, "utf8").replace(/^\uFEFF/, "");
-        const cfg = JSON.parse(stripJsonc(raw).replace(/,\s*([\]}])/g, "$1"));
-        cfg.openai = { ...(cfg.openai || {}), baseURL: GATEWAY };
-        cfg.env = { ...(cfg.env || {}), OPENAI_BASE_URL: GATEWAY, OPENAI_API_BASE: GATEWAY, OLLAMA_HOST: "127.0.0.1:8555" };
-        writeFileSync(p, JSON.stringify(cfg, null, 2) + "\n", "utf8");
-        process.stdout.write(`  opencode gateway: ${p} ok\n`);
-      } catch (e) {
-        process.stdout.write(`  opencode gateway: ${p} FAIL ${e.message}\n`);
-      }
-    }
+  for (const e of env) {
+    if (e.key === "pos-env-file") process.stdout.write(`  env file: ${e.val} ok\n`);
+    else process.stdout.write(`  env ${e.key}=${e.val} ${e.ok ? "ok" : "FAIL"}\n`);
   }
-  process.stdout.write("\nStart gateway: pos gateway\n");
-  process.stdout.write("Verify: pos enforce doctor --strict\n");
+  for (const r of os) {
+    process.stdout.write(`  os ${r.component}: ${r.status}${r.detail ? ` — ${r.detail}` : ""}\n`);
+  }
+  process.stdout.write("\nVerify: pos enforce doctor --strict\n");
+  process.stdout.write("Log out/in (or restart terminals) so GUI apps inherit POS env.\n");
 }
 
 function cmdOff() {

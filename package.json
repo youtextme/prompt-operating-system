@@ -10,7 +10,7 @@
   "scripts": {
     "install:local": "node install.mjs",
     "doctor": "node bin/pos.mjs doctor",
-    "test": "node kernel/lib/status-law.test.mjs && node adapters/devin.test.mjs && node kernel/enforce/inject.test.mjs && node kernel/scripts/evidence-check.test.mjs && node kernel/scripts/watchdog.mjs --self-test && node kernel/scripts/possandbox.test.mjs && node kernel/layers/layers.test.mjs"
+    "test": "node kernel/lib/status-law.test.mjs && node adapters/devin.test.mjs && node kernel/enforce/inject.test.mjs && node kernel/scripts/evidence-check.test.mjs && node kernel/scripts/watchdog.mjs --self-test && node kernel/scripts/possandbox.test.mjs && node kernel/layers/layers.test.mjs && node kernel/scripts/os-wire.test.mjs"
   },
   "engines": {
     "node": ">=20"

@@ -51,7 +51,7 @@ node install.mjs
 | `--with-kit` | Pin VibeSetup skill repos (Superpowers, grill-me, Ralph, etc.) |
 | `--dry-run` | Show plan without writing |
 
-**v3 default:** hard enforcement — gateway on `:8555`, Cursor `beforeSubmitPrompt` hook, user env vars. See [ENFORCEMENT.md](docs/ENFORCEMENT.md).
+**v3 default:** hard enforcement — gateway on `:8555`, Cursor `beforeSubmitPrompt` hook, **OS-level** env + autostart (shell profiles, `environment.d`, systemd/launchd). See [ENFORCEMENT.md](docs/ENFORCEMENT.md).
 
 ### What install does
 
@@ -60,6 +60,7 @@ node install.mjs
 3. **Migrates** legacy `~/.agents/outcome-os/` if present
 4. **Detects and wires** installed tools: Cursor, VS Code, opencode, Claude Code, OpenClaw, Windsurf, Continue, Devin
 5. Replaces prior POS wiring (legacy Outcome OS rules → Prompt OS)
+6. **OS-level rings:** `~/.pos-env.sh`, shell profile sourcing, Linux `environment.d`, gateway autostart (systemd/launchd/Task Scheduler) — **log out/in** after first install
 
 ### Cursor Cloud
 

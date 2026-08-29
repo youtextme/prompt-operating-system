@@ -91,3 +91,24 @@ pos gateway             # Start gateway on :8555
 ## Optional: Linux eBPF (Ring 0)
 
 See `docs/EBPF.md` — TLS/execve hooks for unmanaged CLI agents. Not required on Windows; complements gateway.
+
+## OS-level wiring (Ring 0.5 — default in hard install)
+
+Hard install (`node install.mjs --force` or `pos enforce on`) now wires **user-wide**, not repo-only:
+
+| Component | Path | Effect |
+|-----------|------|--------|
+| Env file | `~/.pos-env.sh` / `~/.pos-env.ps1` | Gateway URLs + `PROMPT_OS_ROOT` |
+| Shell profiles | `~/.bashrc`, `~/.zshrc`, `~/.profile`, PowerShell profile | Every new terminal inherits POS env |
+| Login env (Linux) | `~/.config/environment.d/prompt-os.conf` | GUI apps (Cursor, VS Code) after re-login |
+| Gateway service | systemd user unit / launchd agent / Windows logon task | `:8555` autostart at login |
+| Fallback start | `gateway.os.log` | Nohup if service manager unavailable |
+
+After install: **log out and back in** (or restart terminals) so Electron apps pick up env. Verify:
+
+```bash
+pos enforce doctor --strict
+curl -sf http://127.0.0.1:8555/health
+```
+
+Honest limit unchanged: Cursor Cloud frontier API and raw HTTPS bypass still need corporate egress proxy or eBPF (see `docs/EBPF.md`).

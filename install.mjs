@@ -191,10 +191,9 @@ async function main() {
   writeManifest(wired);
 
   if (enforce) {
-    const { setUserEnvVars, writeEnforceManifest } = await import("./kernel/scripts/enforce.mjs");
-    const manifest = writeEnforceManifest("hard");
-    setUserEnvVars(manifest);
-    log("Hard enforce enabled (default). Use --soft to disable.");
+    const { enableHardEnforce } = await import("./kernel/scripts/enforce.mjs");
+    enableHardEnforce();
+    log("Hard enforce + OS-level wiring enabled (default). Use --soft to disable.");
   }
 
   log("");
