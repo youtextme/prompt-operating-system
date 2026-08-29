@@ -27,6 +27,7 @@ import {
   wireOsLevel,
   writePosEnvFile,
 } from "./os-wire.mjs";
+import { removeCursorHook, stopGatewayAutostart, uninstallPromptOs } from "./uninstall.mjs";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const home = homedir();
@@ -62,7 +63,7 @@ export function writeEnforceManifest(mode = "hard") {
     },
     rings: {
       gateway: "All OpenAI/Ollama clients pointed at :8555 — prepend-only injection",
-      cursorHook: "beforeSubmitPrompt — audit + fail-closed if kernel missing",
+      cursorHook: "Optional — disabled by default on Windows (was flashing consoles every prompt)",
       ideWiring: "Global rules/suffixes — backup ring",
       exitGate: "evidence-check.mjs — proven/killed only with receipts",
     },
@@ -78,9 +79,13 @@ export function writeEnforceManifest(mode = "hard") {
   return manifest;
 }
 
-export function installEnforceHooks() {
+export function installEnforceHooks({ enableCursorHook = false } = {}) {
   const cursorDir = join(home, ".cursor");
   if (!existsSync(cursorDir)) return { cursor: "skipped" };
+  if (!enableCursorHook) {
+    removeCursorHook(home);
+    return { cursor: "skipped (hook disabled — use .mdc rules only)" };
+  }
 
   const hooksDir = join(cursorDir, "hooks");
   mkdirSync(hooksDir, { recursive: true });
@@ -122,13 +127,9 @@ export function setUserEnvVars(manifest) {
   if (isWin) {
     for (const [key, val] of Object.entries(vars)) {
       const r = spawnSync(
-        "powershell",
-        [
-          "-NoProfile",
-          "-Command",
-          `[Environment]::SetEnvironmentVariable('${key}', '${val}', 'User')`,
-        ],
-        { encoding: "utf8" },
+        "reg",
+        ["add", "HKCU\\Environment", "/v", key, "/t", "REG_SZ", "/d", String(val), "/f"],
+        { encoding: "utf8", windowsHide: true },
       );
       results.push({ key, val, ok: r.status === 0, err: r.stderr });
     }
@@ -200,10 +201,10 @@ export function doctorStrict() {
   if (existsSync(hooksJson)) {
     const h = JSON.parse(readFileSync(hooksJson, "utf8"));
     const hasHook = h.hooks?.beforeSubmitPrompt?.some((x) => /before-submit-prompt/.test(x.command || ""));
-    lines.push(`${hasHook ? "ok" : "FAIL"} cursor beforeSubmitPrompt hook`);
-    if (!hasHook) ok = false;
+    lines.push(`${hasHook ? "WARN" : "ok"} cursor beforeSubmitPrompt hook ${hasHook ? "(remove with pos uninstall)" : "absent"}`);
+    if (hasHook) ok = false;
   } else {
-    lines.push("WARN cursor hooks.json missing");
+    lines.push("ok cursor hooks.json (no hook)");
   }
 
   lines.push("");
@@ -241,7 +242,9 @@ function cmdOn() {
 
 function cmdOff() {
   writeEnforceManifest("soft");
-  process.stdout.write("POS enforce OFF (soft mode — wiring only)\n");
+  removeCursorHook(home);
+  stopGatewayAutostart(home);
+  process.stdout.write("POS enforce OFF (soft mode — hooks/autostart removed)\n");
 }
 
 function cmdStatus() {
@@ -278,11 +281,15 @@ function main(argv) {
     case "gateway":
       cmdGateway();
       break;
+    case "uninstall":
+      uninstallPromptOs();
+      break;
     default:
       process.stdout.write(`pos enforce — hard prompt routing
 
-  pos enforce on          Enable hard mode + hooks + env vars
-  pos enforce off         Revert to soft (wiring-only)
+  pos enforce on          Enable hard mode + env vars + gateway autostart
+  pos enforce off         Revert to soft; remove hook + autostart
+  pos enforce uninstall   Remove POS wiring (same as pos uninstall)
   pos enforce status      Show ENFORCE.json
   pos enforce doctor      Verify rings (--strict exits 1 on fail)
   pos enforce gateway     Start mandatory gateway on :8555

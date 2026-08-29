@@ -155,6 +155,9 @@ switch (cmd) {
   case "install":
     spawnSync(process.execPath, [join(repoRoot, "install.mjs"), ...rest], { stdio: "inherit" });
     break;
+  case "uninstall":
+    spawnSync(process.execPath, [join(repoRoot, "uninstall.mjs"), ...rest], { stdio: "inherit" });
+    break;
   case "wire":
     wireAll({ home, posRoot, routerPath }).then((w) => {
       for (const x of w) process.stdout.write(`${x.tool}: ${x.status}\n`);
@@ -173,9 +176,10 @@ switch (cmd) {
   pos reward '<json>'                 # compute G reward
   pos program status <slug>           # slice progress
   pos evidence-check <file> [--done|--slice]
-  pos enforce on|off|status|doctor [--strict]
+  pos enforce on|off|status|doctor|uninstall [--strict]
   pos gateway                         # start mandatory gateway :8555
   pos install [--force] [--soft] [--with-kit]
+  pos uninstall                     # remove hooks, autostart, POS wiring
 
 `);
 }

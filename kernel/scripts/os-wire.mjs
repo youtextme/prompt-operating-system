@@ -6,7 +6,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir, platform } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 
 export const PROFILE_MARKER = "# POS enforce env (managed by Prompt OS — do not edit)";
 export const PROFILE_SOURCE_SH = '[ -f "$HOME/.pos-env.sh" ] && . "$HOME/.pos-env.sh"';
@@ -60,37 +60,41 @@ export function appendShellProfile(profilePath, sourceLine = PROFILE_SOURCE_SH) 
   return { path: profilePath, status: "wired", ok: true };
 }
 
+/** Windows PowerShell profile paths (CurrentUserAllHosts equivalents). */
+export function windowsPowerShellProfilePaths(home = homedir()) {
+  return [
+    join(home, "Documents", "PowerShell", "profile.ps1"),
+    join(home, "Documents", "PowerShell", "Microsoft.PowerShell_profile.ps1"),
+    join(home, "Documents", "WindowsPowerShell", "profile.ps1"),
+    join(home, "Documents", "WindowsPowerShell", "Microsoft.PowerShell_profile.ps1"),
+  ];
+}
+
+/** Append POS block to a PowerShell profile without spawning PowerShell. */
+export function appendWindowsPowerShellProfile(profilePath) {
+  const sourceLine = '. "$env:USERPROFILE\\.pos-env.ps1"';
+  const block = `${PROFILE_MARKER}\n${sourceLine}\n`;
+  mkdirSync(dirname(profilePath), { recursive: true });
+  if (!existsSync(profilePath)) {
+    writeFileSync(profilePath, block, "utf8");
+    return { path: profilePath, status: "created", ok: true };
+  }
+  const content = readFileSync(profilePath, "utf8");
+  if (content.includes(PROFILE_MARKER)) {
+    return { path: profilePath, status: "ok", ok: true };
+  }
+  writeFileSync(profilePath, content.trimEnd() + "\n\n" + block, "utf8");
+  return { path: profilePath, status: "wired", ok: true };
+}
+
 /** Source ~/.pos-env.sh from bash/zsh/login profiles (Unix). */
 export function wireShellProfiles(home = homedir()) {
   const results = [];
   if (platform() === "win32") {
-    const r = spawnSync(
-      "powershell",
-      [
-        "-NoProfile",
-        "-Command",
-        `
-$marker = '${PROFILE_MARKER.replace(/'/g, "''")}'
-$line = '. "$env:USERPROFILE\\.pos-env.ps1"'
-$profile = $PROFILE.CurrentUserAllHosts
-$dir = Split-Path $profile -Parent
-if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Force $dir | Out-Null }
-if (-not (Test-Path $profile)) { New-Item -ItemType File -Force $profile | Out-Null }
-$c = Get-Content $profile -Raw -ErrorAction SilentlyContinue
-if ($null -eq $c) { $c = '' }
-if ($c -notmatch [regex]::Escape($marker)) {
-  Add-Content $profile ("\\n" + $marker + "\\n" + $line + "\\n")
-}
-`,
-      ],
-      { encoding: "utf8" },
-    );
-    results.push({
-      component: "powershell-profile",
-      status: r.status === 0 ? "wired" : "warn",
-      detail: r.stderr?.trim() || "CurrentUserAllHosts",
-      ok: r.status === 0,
-    });
+    for (const profilePath of windowsPowerShellProfilePaths(home)) {
+      const r = appendWindowsPowerShellProfile(profilePath);
+      results.push({ component: `ps-profile:${profilePath}`, ...r });
+    }
     return results;
   }
 
@@ -233,10 +237,10 @@ export function installWindowsGatewayTask(home, posRoot) {
   if (platform() !== "win32") {
     return { component: "schtasks", status: "skipped", ok: true };
   }
-  const node = process.execPath.replace(/\\/g, "\\\\");
-  const gw = join(posRoot, "enforce", "gateway.mjs").replace(/\\/g, "\\\\");
+  const gw = join(posRoot, "enforce", "gateway.mjs");
   const taskName = "PromptOSGateway";
-  const tr = `cmd /c start /min "" "${process.execPath}" "${join(posRoot, "enforce", "gateway.mjs")}"`;
+  // Run node directly — never wrap in cmd /c start (flashes Command Prompt).
+  const tr = `"${process.execPath}" "${gw}"`;
   const r = spawnSync(
     "schtasks",
     [
@@ -251,7 +255,7 @@ export function installWindowsGatewayTask(home, posRoot) {
       "/RL",
       "LIMITED",
     ],
-    { encoding: "utf8" },
+    { encoding: "utf8", windowsHide: true },
   );
   return {
     component: "schtasks",
