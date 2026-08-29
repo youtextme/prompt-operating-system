@@ -4,6 +4,7 @@
 |-----------|--------|---------|
 | **Router law** | `kernel/router/PROMPT-ROUTER.md` | How every prompt is processed |
 | **Constitution** | `kernel/CONSTITUTION.md` | ≤50 line law |
+| **Seven layers** | `kernel/layers/*` · `pos layers` | Need→Context→Hypothesis→Truth→Critique→Retrieve→Autonomy |
 | **Evidence gate** | `evidence-check.mjs [--done] [--slice]` | Contract/slice proven/killed |
 | **Watchdog** | `watchdog.mjs` | Stall (10) / ack-loop (11) |
 | **Audit** | `audit.mjs` | JSONL lineage |

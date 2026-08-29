@@ -2,12 +2,23 @@
 
 **One install. Every IDE and CLI. Objective contracts. Machine-enforced evidence.**
 
-Prompt OS is a universal kernel that routes **every** AI prompt through falsifiable outcome contracts, programmatic verification, and bounded self-evolution — not chat loops.
+Prompt OS is a universal kernel that routes **every** AI prompt through falsifiable outcome contracts, programmatic verification, and bounded self-evolution — not chat loops. **v3.6** ships the [seven-layer objective runner](docs/OBJECTIVE-RUNNER.md): Need → Context → Hypothesis → Truth → Critique → Retrieve → Autonomy (MAPE-K).
 
-📖 **[Live docs](https://youtextme.github.io/prompt-operating-system/)** · Architecture · [Tenets](docs/TENETS.md)
+📖 **[Live docs](https://youtextme.github.io/prompt-operating-system/)** · [Objective runner design](docs/OBJECTIVE-RUNNER.md) · Architecture · [Tenets](docs/TENETS.md)
 
 ---
 
+
+## Seven-layer objective runner (v3.6)
+
+```bash
+pos layers run "Ship a sourced brief on LLM self-correction limits"
+pos layers critique ~/.agents/prompt-os/runs/<slug>
+```
+
+Design paper and predicates: [docs/OBJECTIVE-RUNNER.md](docs/OBJECTIVE-RUNNER.md). Kernel: `kernel/layers/`.
+
+---
 ## Install (one command)
 
 **macOS / Linux:**

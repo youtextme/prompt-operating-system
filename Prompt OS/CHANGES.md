@@ -1,5 +1,26 @@
 # Prompt Operating System — CHANGES
 
+## v3.6.0 — Seven-layer objective runner (2026-08-29)
+
+### Design
+Implements the objective-runner design paper: an OS between prompt and model that freezes Need, grounds Context, falsifies Hypotheses, attributes Truth, separates Critique, bounds Retrieval, and loops Autonomy (MAPE-K). See `docs/OBJECTIVE-RUNNER.md`.
+
+### Code
+- `kernel/layers/` — Need, Context, Hypothesis, Truth, Critique, Retrieve, Autonomy
+- `kernel/schemas/objective.schema.json` — typed Layer 1 objective
+- CLI: `pos layers`, `pos layers run "<ask>"`, `pos critique <run-dir>`
+- Router documents the seven layers; install creates `runs/`
+- Tests: `kernel/layers/layers.test.mjs`
+
+### Upgrade
+```bash
+node install.mjs --force
+pos layers run "Ship a sourced brief on LLM self-correction limits"
+pos doctor
+```
+
+---
+
 ## v3.3.1 — Devin Cloud wiring (2026-08-23)
 
 ### Problem

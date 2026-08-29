@@ -93,7 +93,7 @@ function migrateLegacy() {
 
 function writeManifest(wired) {
   const manifest = {
-    version: "3.3.2",
+    version: "3.6.0",
     installedAt: new Date().toISOString(),
     posRoot,
     router: join(routerDir, "PROMPT-ROUTER.md"),
@@ -115,6 +115,7 @@ function ensureDirs() {
     join(posRoot, "benchmarks"),
     join(posRoot, "evolve"),
     join(posRoot, "audit"),
+    join(posRoot, "runs"),
     join(posRoot, "skills", "community"),
   ]) {
     mkdirSync(d, { recursive: true });
@@ -136,7 +137,7 @@ async function installHub() {
 }
 
 async function main() {
-  log("Prompt OS installer v3.0.0");
+  log("Prompt OS installer v3.6.0 — seven-layer objective runner");
   log(`Target: ${posRoot}`);
   if (repoRoot !== __dir) log(`Repo wiring: ${repoRoot}`);
 

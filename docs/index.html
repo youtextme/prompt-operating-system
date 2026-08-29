@@ -83,10 +83,10 @@
   <div class="wrap">
     <header>
       <h1>Prompt OS</h1>
-      <p class="tagline">One install. Every IDE and CLI. Objective contracts. Machine-enforced evidence.</p>
+      <p class="tagline">Seven-layer objective runner. One install. Every IDE and CLI. Checkable artifacts — not model confidence.</p>
     </header>
 
-    <p>Prompt OS is a <strong style="color:var(--text)">universal kernel</strong> that compiles raw intent into falsifiable contracts and gates &ldquo;done&rdquo; on exit codes — not model confidence.</p>
+    <p>Prompt OS is a <strong style="color:var(--text)">universal kernel</strong> that freezes Need, grounds Context, falsifies Hypotheses, attributes Truth, separates Critique, bounds Retrieval, and loops Autonomy (MAPE-K). &ldquo;Done&rdquo; is an exit code, not a vibe.</p>
 
     <h2>Install</h2>
     <div class="hero-code">
@@ -97,12 +97,27 @@
       <div># Windows PowerShell</div>
       <code>irm https://raw.githubusercontent.com/youtextme/prompt-operating-system/main/install.ps1 | iex</code>
     </div>
+    <div class="hero-code">
+      <div># Seven-layer demo</div>
+      <code>pos layers run "Ship a sourced brief on LLM self-correction limits"</code>
+    </div>
 
     <p>Install copies the kernel to <code>~/.agents/prompt-os/</code>, sets <code>~/.agents/router/PROMPT-ROUTER.md</code>, migrates legacy Outcome OS, and wires Cursor, opencode, Claude Code, VS Code, OpenClaw, and more.</p>
 
     <a class="cta" href="https://github.com/youtextme/prompt-operating-system">View on GitHub</a>
 
-    <h2>Eight tenets</h2>
+    <h2>Seven layers</h2>
+    <div class="tenets">
+      <div class="tenet"><strong>1 Need</strong> — Typed objective (success, kill, boundary, boolean DoD) before generation</div>
+      <div class="tenet"><strong>2 Context</strong> — Authorised tools/paths with timestamps; gateway refuses the rest</div>
+      <div class="tenet"><strong>3 Hypothesis</strong> — Falsifiable phase hypotheses; refutations logged to disk</div>
+      <div class="tenet"><strong>4 Truth</strong> — Numbers/URLs sourced or tagged <code>[unverified]</code></div>
+      <div class="tenet"><strong>5 Critique</strong> — Writer ≠ grader; exit 0/2; theater fails closed</div>
+      <div class="tenet"><strong>6 Retrieve</strong> — Named gap + source + budget; files before generation</div>
+      <div class="tenet"><strong>7 Autonomy</strong> — MAPE-K loop; failure writes <code>next-action</code>, never silence</div>
+    </div>
+
+    <h2>Nine tenets</h2>
     <div class="tenets">
       <div class="tenet"><strong>GoSolo</strong> — Autonomous routing; optional eBPF interception (Linux)</div>
       <div class="tenet"><strong>KeepItWarm</strong> — Git spine + audit JSONL lineage</div>
@@ -112,6 +127,7 @@
       <div class="tenet"><strong>FeedbackLoop</strong> — ≤3 high-leverage human questions at outcome gates</div>
       <div class="tenet"><strong>FormulasAndBooleans</strong> — evidence-check.mjs exit codes</div>
       <div class="tenet"><strong>Evolve&Improve</strong> — Golden failure benchmarks + bounded promotion</div>
+      <div class="tenet"><strong>NoOneBigShotOutcome</strong> — Human-usable slices; program stays active until all proven/killed</div>
     </div>
 
     <h2>Verification hierarchy</h2>
@@ -120,6 +136,8 @@
     <h2>Machine gates</h2>
     <table>
       <tr><th>Script</th><th>Exit</th><th>Meaning</th></tr>
+      <tr><td>critique.mjs / pos layers critique</td><td>0</td><td>Layer 5 pass (no theater, claims sourced)</td></tr>
+      <tr><td>critique.mjs</td><td>2</td><td>Layer 5 fail</td></tr>
       <tr><td>evidence-check.mjs --done</td><td>0</td><td>proven/killed with receipts</td></tr>
       <tr><td>evidence-check.mjs --done</td><td>2</td><td>false done claim blocked</td></tr>
       <tr><td>watchdog.mjs</td><td>10</td><td>stall — identical outputs</td></tr>
@@ -128,6 +146,7 @@
 
     <h2>Documentation</h2>
     <ul>
+      <li><a href="OBJECTIVE-RUNNER.md">Objective runner design (seven layers)</a></li>
       <li><a href="ARCHITECTURE.md">Architecture (reconciled spec)</a></li>
       <li><a href="TENETS.md">Tenets + mathematical models</a></li>
       <li><a href="EBPF.md">Optional eBPF GoSolo layer</a></li>
@@ -135,7 +154,7 @@
     </ul>
 
     <h2>Reconciled sources</h2>
-    <p>This repo merges all POS gists into one installable kernel: verification hierarchy, eight tenets, Outcome OS enforcement, unified IDE wiring, and optional local LLM hub.</p>
+    <p>This repo merges the objective-runner design paper with POS gists into one installable kernel: seven layers, verification hierarchy, nine tenets, Outcome OS enforcement, unified IDE wiring, and optional local LLM hub.</p>
 
     <footer>
       MIT License · <a href="https://github.com/youtextme/prompt-operating-system">youtextme/prompt-operating-system</a>

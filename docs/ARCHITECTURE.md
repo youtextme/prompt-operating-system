@@ -2,10 +2,13 @@
 
 *Single document merging all POS gists + live enforcement learnings. Every mechanism maps to a file or exit code.*
 
+**Seven-layer objective runner (v3.6):** see [OBJECTIVE-RUNNER.md](./OBJECTIVE-RUNNER.md) — Need → Context → Hypothesis → Truth → Critique → Retrieve → Autonomy (MAPE-K). Code: `kernel/layers/`.
+
 ## Sources reconciled
 
 | Source | Contribution |
 |--------|----------------|
+| Objective-runner design paper | Seven layers; writer≠grader; checkable artifacts (`docs/OBJECTIVE-RUNNER.md`) |
 | POS v2 guide | Verification hierarchy, structured intake, process oracles, evolution loop |
 | Eight tenets (eBPF POS) | GoSolo, TerminalOutcomes DAG, VPR math, BarRaiserBoard regression |
 | Outcome OS architecture | Machine enforcement, failure modes, mandatory artifacts, deliverable-on-disk |

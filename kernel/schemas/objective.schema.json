@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prompt-os.dev/schemas/objective.schema.json",
+  "title": "PromptOSObjective",
+  "description": "Layer 1 — Need. Typed objective compiled before any generation. Parseable without an LLM.",
+  "type": "object",
+  "required": ["slug", "job", "success", "kill", "boundary", "definition_of_done"],
+  "properties": {
+    "slug": { "type": "string", "minLength": 2 },
+    "job": { "type": "string", "minLength": 8 },
+    "success": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 8 },
+      "description": "Measurable success statements the artifact must achieve"
+    },
+    "kill": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 8 },
+      "description": "Statements that prove the objective is unreachable"
+    },
+    "boundary": {
+      "type": "object",
+      "required": ["max_phases", "max_retrievals", "wall_clock_minutes"],
+      "properties": {
+        "max_phases": { "type": "integer", "minimum": 1 },
+        "max_retrievals": { "type": "integer", "minimum": 0 },
+        "wall_clock_minutes": { "type": "integer", "minimum": 1 },
+        "max_tokens": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "definition_of_done": {
+      "type": "object",
+      "required": ["checks"],
+      "properties": {
+        "checks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "predicate"],
+            "properties": {
+              "id": { "type": "string" },
+              "predicate": {
+                "type": "string",
+                "enum": [
+                  "artifact_exists",
+                  "zero_unsupported_claims",
+                  "zero_theater",
+                  "hypothesis_logged",
+                  "context_brief_exists",
+                  "evidence_check_done"
+                ]
+              },
+              "path": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "created_at": { "type": "string" },
+    "layer": { "type": "integer", "const": 1 }
+  }
+}

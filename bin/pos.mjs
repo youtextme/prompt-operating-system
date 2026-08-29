@@ -61,6 +61,14 @@ function doctor() {
   for (const s of ["evidence-check.mjs", "possandbox.mjs", "reward.mjs", "variables.mjs", "detect-environment.mjs", "program.mjs", "process-oracle.mjs"]) {
     lines.push(`  ${existsSync(scriptPath(s)) ? "ok" : "MISSING"} ${s}`);
   }
+  const layersDir = existsSync(join(posRoot, "layers", "index.mjs"))
+    ? join(posRoot, "layers")
+    : join(repoRoot, "kernel", "layers");
+  lines.push("");
+  lines.push("Seven layers:");
+  for (const s of ["need.mjs", "context.mjs", "hypothesis.mjs", "truth.mjs", "critique.mjs", "retrieve.mjs", "autonomy.mjs"]) {
+    lines.push(`  ${existsSync(join(layersDir, s)) ? "ok" : "MISSING"} ${s}`);
+  }
   lines.push("");
   for (const t of detectTools(home)) {
     if (t.detected) lines.push(`  tool: ${t.id}`);
@@ -69,6 +77,14 @@ function doctor() {
   lines.push(test.stdout || "");
   const sb = spawnSync(process.execPath, [scriptPath("possandbox.test.mjs")], { encoding: "utf8", env: { ...process.env, PROMPT_OS_ROOT: posRoot } });
   lines.push(sb.stdout || "");
+  const layersTest = join(layersDir, "layers.test.mjs");
+  if (existsSync(layersTest)) {
+    const lt = spawnSync(process.execPath, [layersTest], { encoding: "utf8", env: { ...process.env, PROMPT_OS_ROOT: posRoot } });
+    lines.push(lt.stdout || "");
+    if (lt.stderr) lines.push(lt.stderr);
+    process.stdout.write(lines.join("\n") + "\n");
+    process.exit(test.status === 0 && sb.status === 0 && lt.status === 0 ? 0 : 1);
+  }
   process.stdout.write(lines.join("\n") + "\n");
   process.exit(test.status === 0 && sb.status === 0 ? 0 : 1);
 }
@@ -113,6 +129,29 @@ switch (cmd) {
   case "gateway":
     runScript("enforce.mjs", ["gateway", ...rest]);
     break;
+  case "layers":
+  case "layer": {
+    const layersIdx = join(posRoot, "layers", "index.mjs");
+    const layersRepo = join(repoRoot, "kernel", "layers", "index.mjs");
+    const script = existsSync(layersIdx) ? layersIdx : layersRepo;
+    const r = spawnSync(process.execPath, [script, ...rest], {
+      stdio: "inherit",
+      env: { ...process.env, PROMPT_OS_ROOT: posRoot },
+    });
+    process.exit(r.status ?? 1);
+    break;
+  }
+  case "critique": {
+    const script = existsSync(join(posRoot, "layers", "critique.mjs"))
+      ? join(posRoot, "layers", "critique.mjs")
+      : join(repoRoot, "kernel", "layers", "critique.mjs");
+    const r = spawnSync(process.execPath, [script, ...rest], {
+      stdio: "inherit",
+      env: { ...process.env, PROMPT_OS_ROOT: posRoot },
+    });
+    process.exit(r.status ?? 1);
+    break;
+  }
   case "install":
     spawnSync(process.execPath, [join(repoRoot, "install.mjs"), ...rest], { stdio: "inherit" });
     break;
@@ -126,6 +165,9 @@ switch (cmd) {
 
   pos sandbox "<prompt>" [--gist]     # /possandbox — trace + optional gist
   pos doctor                          # verify primitives
+  pos layers                          # seven-layer objective runner
+  pos layers run "<ask>"              # MAPE-K loop → checkable artifact
+  pos critique <run-dir>              # Layer 5 independent pass/fail
   pos env                             # model + hardware detection
   pos variables list                  # mutable variable registry
   pos reward '<json>'                 # compute G reward
