@@ -175,7 +175,7 @@ async function main() {
   // Copy POS skills to Cursor + agents skill roots if present
   mkdirSync(join(home, ".cursor", "skills"), { recursive: true });
   mkdirSync(join(home, ".agents", "skills"), { recursive: true });
-  for (const skillName of ["possandbox", "prompt-os"]) {
+  for (const skillName of ["letscook", "prompt-os", "possandbox"]) {
     const skillSrc = join(__dir, "skills", skillName);
     if (!existsSync(skillSrc)) continue;
     const cursorDest = join(home, ".cursor", "skills", skillName);
@@ -183,7 +183,6 @@ async function main() {
     cpSync(skillSrc, cursorDest, { recursive: true, force: true });
     cpSync(skillSrc, agentsDest, { recursive: true, force: true });
     log(`  skill: ${skillName} → ${cursorDest}`);
-    log(`  skill: ${skillName} → ${agentsDest}`);
   }
 
   const wired = await wireAll({
