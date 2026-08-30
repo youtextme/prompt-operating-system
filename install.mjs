@@ -172,13 +172,18 @@ async function main() {
     }
   }
 
-  // Copy possandbox skill to Cursor if present
-  const skillSrc = join(__dir, "skills", "possandbox");
-  const skillDest = join(home, ".cursor", "skills", "possandbox");
-  if (existsSync(skillSrc)) {
-    mkdirSync(join(home, ".cursor", "skills"), { recursive: true });
-    cpSync(skillSrc, skillDest, { recursive: true, force: true });
-    log(`  skill: possandbox → ${skillDest}`);
+  // Copy POS skills to Cursor + agents skill roots if present
+  mkdirSync(join(home, ".cursor", "skills"), { recursive: true });
+  mkdirSync(join(home, ".agents", "skills"), { recursive: true });
+  for (const skillName of ["possandbox", "prompt-os"]) {
+    const skillSrc = join(__dir, "skills", skillName);
+    if (!existsSync(skillSrc)) continue;
+    const cursorDest = join(home, ".cursor", "skills", skillName);
+    const agentsDest = join(home, ".agents", "skills", skillName);
+    cpSync(skillSrc, cursorDest, { recursive: true, force: true });
+    cpSync(skillSrc, agentsDest, { recursive: true, force: true });
+    log(`  skill: ${skillName} → ${cursorDest}`);
+    log(`  skill: ${skillName} → ${agentsDest}`);
   }
 
   const wired = await wireAll({
