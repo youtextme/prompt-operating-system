@@ -70,6 +70,21 @@ function doctor() {
     lines.push(`  ${existsSync(join(layersDir, s)) ? "ok" : "MISSING"} ${s}`);
   }
   lines.push("");
+  lines.push("JIT Board:");
+  const jitDir = existsSync(join(posRoot, "jit-board", "ROSTER.json"))
+    ? join(posRoot, "jit-board")
+    : join(repoRoot, "kernel", "jit-board");
+  const rosterPath = join(jitDir, "ROSTER.json");
+  if (existsSync(rosterPath)) {
+    const roster = JSON.parse(readFileSync(rosterPath, "utf8"));
+    lines.push(`  seats: ${roster.roles?.length ?? 0} (want 6)`);
+    lines.push(`  law: ${existsSync(join(jitDir, "SUBAGENT-LAW.md")) ? "ok" : "MISSING"}`);
+    lines.push(`  meta-log: ${existsSync(join(posRoot, "scripts", "meta-log.mjs")) || existsSync(join(repoRoot, "kernel", "scripts", "meta-log.mjs")) ? "ok" : "MISSING"}`);
+    lines.push(`  letscook: ${existsSync(join(home, ".cursor", "skills", "letscook", "SKILL.md")) || existsSync(join(repoRoot, "skills", "letscook", "SKILL.md")) ? "ok" : "MISSING"}`);
+  } else {
+    lines.push("  MISSING jit-board (reinstall Prompt OS)");
+  }
+  lines.push("");
   for (const t of detectTools(home)) {
     if (t.detected) lines.push(`  tool: ${t.id}`);
   }
@@ -77,16 +92,24 @@ function doctor() {
   lines.push(test.stdout || "");
   const sb = spawnSync(process.execPath, [scriptPath("possandbox.test.mjs")], { encoding: "utf8", env: { ...process.env, PROMPT_OS_ROOT: posRoot } });
   lines.push(sb.stdout || "");
+  const jitTest = join(repoRoot, "kernel", "jit-board", "jit-board.test.mjs");
+  let jitOk = true;
+  if (existsSync(jitTest)) {
+    const jt = spawnSync(process.execPath, [jitTest], { encoding: "utf8", env: { ...process.env, PROMPT_OS_ROOT: posRoot } });
+    lines.push(jt.stdout || "");
+    if (jt.stderr) lines.push(jt.stderr);
+    jitOk = jt.status === 0;
+  }
   const layersTest = join(layersDir, "layers.test.mjs");
   if (existsSync(layersTest)) {
     const lt = spawnSync(process.execPath, [layersTest], { encoding: "utf8", env: { ...process.env, PROMPT_OS_ROOT: posRoot } });
     lines.push(lt.stdout || "");
     if (lt.stderr) lines.push(lt.stderr);
     process.stdout.write(lines.join("\n") + "\n");
-    process.exit(test.status === 0 && sb.status === 0 && lt.status === 0 ? 0 : 1);
+    process.exit(test.status === 0 && sb.status === 0 && lt.status === 0 && jitOk ? 0 : 1);
   }
   process.stdout.write(lines.join("\n") + "\n");
-  process.exit(test.status === 0 && sb.status === 0 ? 0 : 1);
+  process.exit(test.status === 0 && sb.status === 0 && jitOk ? 0 : 1);
 }
 
 const [cmd, ...rest] = process.argv.slice(2);

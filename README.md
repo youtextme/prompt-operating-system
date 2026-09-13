@@ -1,14 +1,44 @@
 # Prompt Operating System
 
-**One install. Every IDE and CLI. Objective contracts. Machine-enforced evidence.**
+**One install. Every IDE and CLI. Objective contracts. Machine-enforced evidence. Just-in-time Board via `/letscook`.**
 
-Prompt OS is a universal kernel that routes **every** AI prompt through falsifiable outcome contracts, programmatic verification, and bounded self-evolution — not chat loops. **v3.6** ships the [seven-layer objective runner](docs/OBJECTIVE-RUNNER.md): Need → Context → Hypothesis → Truth → Critique → Retrieve → Autonomy (MAPE-K).
+Prompt OS is a universal kernel that routes **every** AI prompt through falsifiable outcome contracts, programmatic verification, and bounded self-evolution — not chat loops. **v3.7** adds the [Just-in-time Board of Directors](docs/JIT-BOARD.md): six isolated subagent seats (Board → SME → Applied AI → CoS → CSAT → Logging Meta) so the main context stays orchestration-only. **v3.6** ships the [seven-layer objective runner](docs/OBJECTIVE-RUNNER.md): Need → Context → Hypothesis → Truth → Critique → Retrieve → Autonomy (MAPE-K).
 
-📖 **[Live docs](https://youtextme.github.io/prompt-operating-system/)** · [Objective runner design](docs/OBJECTIVE-RUNNER.md) · Architecture · [Tenets](docs/TENETS.md)
+📖 **[Live docs](https://youtextme.github.io/prompt-operating-system/)** · [JIT Board](docs/JIT-BOARD.md) · [Objective runner](docs/OBJECTIVE-RUNNER.md) · [Tenets](docs/TENETS.md)
 
 ---
 
+## /letscook — force the objective runner
 
+```text
+/letscook <objective>
+```
+
+Or just state an objective — the Cursor `alwaysApply` rules + skill description auto-load POS. Bypass: `skip promptOS`.
+
+Install places the skill at `~/.cursor/skills/letscook` and `~/.agents/skills/letscook` with a **bundled router** (Cloud-safe).
+
+---
+
+## Just-in-time Board (v3.7)
+
+Non-trivial runs **must not** roleplay all seats in one context (that spoils the main window). Law: [`kernel/jit-board/SUBAGENT-LAW.md`](kernel/jit-board/SUBAGENT-LAW.md).
+
+| Step | Seat |
+|------|------|
+| 1 | Board of Directors |
+| 2 | Subject Matter Experts |
+| 3 | Applied AI Experts |
+| 4 | Chief of Staff |
+| 5 | Customer Satisfaction |
+| 6 | Logging Meta (`meta-log.mjs`) |
+
+```bash
+node ~/.agents/prompt-os/scripts/meta-log.mjs start --ask "your objective"
+pos doctor   # includes JIT seat checks
+```
+
+---
 ## Seven-layer objective runner (v3.6)
 
 ```bash

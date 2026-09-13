@@ -1,0 +1,21 @@
+---
+description: JIT Board — six isolated seats with /letscook
+alwaysApply: true
+---
+
+# JIT Board (Prompt OS)
+
+When POS is on and the ask is non-trivial, staff these seats via **Task subagents** (own context windows), not main-chat roleplay:
+
+1. Board of Directors — recruit experts
+2. Subject Matter Experts — qualify + solution
+3. Applied AI Experts — DoD, FMEA, agent splits
+4. Chief of Staff — delivery team + million-dollar bar
+5. Customer Satisfaction — async consumer trust loop
+6. Logging Meta — append-only truth log (`meta-log.mjs`)
+
+Law: `~/.agents/prompt-os/jit-board/SUBAGENT-LAW.md` (repo: `kernel/jit-board/SUBAGENT-LAW.md`).
+Roles: `jit-board/roles/`. Roster: `ROSTER.json`.
+Entrypoint: skill `/letscook` (auto on objectives).
+
+If you catch yourself writing long SME/AI/CoS prose in the main thread, stop and spawn a subagent.

@@ -185,6 +185,18 @@ async function main() {
     log(`  skill: ${skillName} → ${cursorDest}`);
   }
 
+  // Ensure JIT board is present under install root (also arrives via copyKernel)
+  const jitSrc = join(__dir, "kernel", "jit-board");
+  if (existsSync(jitSrc)) {
+    cpSync(jitSrc, join(posRoot, "jit-board"), { recursive: true, force: true });
+    log(`  jit-board: → ${join(posRoot, "jit-board")}`);
+  }
+
+  // Templates for Cursor repo wiring
+  if (existsSync(join(__dir, "templates"))) {
+    cpSync(join(__dir, "templates"), join(posRoot, "templates"), { recursive: true, force: true });
+  }
+
   const wired = await wireAll({
     home,
     posRoot,

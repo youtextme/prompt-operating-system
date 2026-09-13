@@ -152,7 +152,28 @@ Before product code:
 
 ## Step 3 — Recruit, don't ask
 
-Staffing is your decision, never the user's. Dispatch role-isolated subagents in parallel when independent:
+Staffing is your decision, never the user's. Dispatch role-isolated subagents in parallel when independent.
+
+### Step 3.0 — JIT Board of Directors (non-trivial — mandatory)
+
+**Main context is orchestration only.** Full law: `kernel/jit-board/SUBAGENT-LAW.md` (install: `~/.agents/prompt-os/jit-board/SUBAGENT-LAW.md`). Roster: `ROSTER.json`.
+
+Before Researcher/Experimenter/Builder on non-trivial asks, staff these **six seats as separate Task subagents** (own context windows). Prefer background for independent seats; await when sequencing requires it. Status `agents:N […]` must list **real** spawns — never imaginary roles.
+
+| Step | Seat | Job |
+|------|------|-----|
+| 1 | Board of Directors | Recruit world-class experts for the ask |
+| 2 | Subject Matter Experts | Qualify panel + solution until expert bar is met |
+| 3 | Applied AI Experts | DoD, hallucination/FMEA, agent splits, self-heal |
+| 4 | Chief of Staff | Delivery team, skills, million-dollar bar, consumer exceptions |
+| 5 | Customer Satisfaction | Async outcome trust loop; steer signals |
+| 6 | Logging Meta | Append-only execution truth (`scripts/meta-log.mjs`) |
+
+If Task/subagents are unavailable: Status `Trust:YELLOW`, run **sequenced role-pass files** under the meta run — never silent single-brain GREEN. Spoiler = running all seats inside the main transcript.
+
+### Step 3.1 — Delivery roles
+
+Also dispatch as isolated subagents when independent:
 
 - **Researcher** — disprove the brief; cite-or-kill; no product code
 - **Experimenter** — cheapest PoC; instrument one metric
