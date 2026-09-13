@@ -31,8 +31,10 @@ export async function wireOpenCode({ home, routerPath }) {
   }
 
   const instructions = Array.isArray(config.instructions) ? config.instructions : [];
-  const filtered = instructions.filter((i) => !/PROMPT-ROUTER|prompt-os|outcome-os/i.test(String(i)));
+  const filtered = instructions.filter((i) => !/PROMPT-ROUTER|prompt-os|outcome-os|SUBAGENT-LAW|jit-board/i.test(String(i)));
   filtered.unshift(routerPath);
+  const jitLaw = join(home, ".agents", "prompt-os", "jit-board", "SUBAGENT-LAW.md");
+  if (existsSync(jitLaw)) filtered.unshift(jitLaw);
   config.instructions = filtered;
 
   if (!config.permission) {

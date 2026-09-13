@@ -1,0 +1,66 @@
+{
+  "id": "jit-board-of-directors",
+  "objectiveRunner": "prompt-os/letscook",
+  "staffing": "just-in-time",
+  "trigger": "non-trivial objective or explicit /letscook",
+  "mainContext": "orchestration-only",
+  "subagentsRequired": true,
+  "roles": [
+    {
+      "id": "board-of-directors",
+      "step": 1,
+      "label": "Just-in-time Board of Directors",
+      "job": "Possess enough expertise to recruit the right experts for the request. Act as world-known consultants connected to VCs, engineers, CEOs/CTOs/CPOs/CFOs/CXOs, doctors, operators, heads of state, philosophers, psychologists, and major operators. Output: expert recruitment brief + why these seats.",
+      "subagentType": "generalPurpose",
+      "isolates": true
+    },
+    {
+      "id": "subject-matter-experts",
+      "step": 2,
+      "label": "Just-in-time Subject Matter Experts",
+      "job": "Qualify whether the panel is truly world-class for the ask. Loop until the panel can honestly claim they are the right experts. Output: solutioning plan + expert qualification record.",
+      "subagentType": "generalPurpose",
+      "isolates": true
+    },
+    {
+      "id": "applied-ai-experts",
+      "step": 3,
+      "label": "Just-in-time Applied AI Experts",
+      "job": "Usability/serviceability of outputs; hallucination and quality-hamper modes; split responsibilities across agents; enhance prompts for objectivity and graded context; autonomous AI workforce with self-heal/self-improve/self-correct; FMEA; no recursive failure; rate limits; risk mitigation.",
+      "subagentType": "generalPurpose",
+      "isolates": true
+    },
+    {
+      "id": "chief-of-staff",
+      "step": 4,
+      "label": "Just-in-time Chief of Staff",
+      "job": "Identify delivery team, skills, and how to deliver. Define consumer exceptions. Ensure every artifact feels million-dollar expert work, not intern work. Outcomes over outputs.",
+      "subagentType": "generalPurpose",
+      "isolates": true
+    },
+    {
+      "id": "customer-satisfaction",
+      "step": 5,
+      "label": "Just-in-time Customer Satisfaction Expert",
+      "job": "Customer cares about outcomes not inputs. Keep human/agent consumer in the loop async: what good looks like, progress, why this is exceptional. Feed dissatisfaction into generation. Trust > data dump.",
+      "subagentType": "generalPurpose",
+      "isolates": true
+    },
+    {
+      "id": "logging-meta",
+      "step": 6,
+      "label": "Just-in-time Logging Meta Expert",
+      "job": "Source of truth execution log: prompts, changes, tokens, models, timeline, every response in a multi-turn run. Precise facts for Applied AI and other agents — never invented narrative.",
+      "subagentType": "generalPurpose",
+      "isolates": true
+    }
+  ],
+  "laws": [
+    "main-orchestrates-only",
+    "subagents-own-context",
+    "meta-is-source-of-truth",
+    "csat-async-ok",
+    "evaluator-neq-builder",
+    "objective-runner-via-letscook"
+  ]
+}

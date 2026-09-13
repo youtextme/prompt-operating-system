@@ -13,6 +13,27 @@ alwaysApply: true
 ${statusLawBlock(routerPath)}
 `;
 
+const JIT_RULE = `---
+description: JIT Board — six isolated seats with /letscook
+alwaysApply: true
+---
+
+# JIT Board (Prompt OS)
+
+Non-trivial objectives: spawn Task subagents for Board, SME, Applied AI, CoS, CSAT, Logging Meta.
+Law: ~/.agents/prompt-os/jit-board/SUBAGENT-LAW.md
+Entrypoint: /letscook (auto on objectives). Main context = orchestration only.
+`;
+
+const JIT_SEATS = [
+  "board-of-directors",
+  "subject-matter-experts",
+  "applied-ai-experts",
+  "chief-of-staff",
+  "customer-satisfaction",
+  "logging-meta",
+];
+
 /** Repo .cursor/rules — required for Cursor Cloud agents (they read the repo, not ~/.cursor). */
 export async function wireCursorRepo({ repoRoot, routerPath = ROUTER_HOME }) {
   if (!repoRoot || !existsSync(repoRoot)) {
@@ -27,6 +48,13 @@ export async function wireCursorRepo({ repoRoot, routerPath = ROUTER_HOME }) {
     cpSync(template, join(rulesDir, "00-prompt-os.mdc"), { force: true });
   } else {
     writeFileSync(join(rulesDir, "00-prompt-os.mdc"), RULE(routerPath), "utf8");
+  }
+
+  const jitTemplate = join(repoRoot, "templates", "01-jit-board.mdc");
+  if (existsSync(jitTemplate)) {
+    cpSync(jitTemplate, join(rulesDir, "01-jit-board.mdc"), { force: true });
+  } else {
+    writeFileSync(join(rulesDir, "01-jit-board.mdc"), JIT_RULE, "utf8");
   }
 
   return { tool: "cursor-repo", status: "wired", detail: join(rulesDir, "00-prompt-os.mdc") };
@@ -56,12 +84,26 @@ export async function wireCursor({ home, routerPath, posRoot, repoRoot }) {
   const rulePath = join(rulesDir, "00-prompt-os.mdc");
   writeFileSync(rulePath, RULE(routerPath), "utf8");
 
+  const jitTemplate = join(posRoot, "templates", "01-jit-board.mdc");
+  if (existsSync(jitTemplate)) {
+    cpSync(jitTemplate, join(rulesDir, "01-jit-board.mdc"), { force: true });
+  } else {
+    writeFileSync(join(rulesDir, "01-jit-board.mdc"), JIT_RULE, "utf8");
+  }
+
   const agentsDir = join(cursorDir, "agents");
   mkdirSync(agentsDir, { recursive: true });
   for (const role of ["builder", "evaluator", "researcher", "experimenter"]) {
     const src = join(posRoot, "roles", `${role}.md`);
-    const dest = join(agentsDir, `${role}.md`);
-    if (existsSync(src)) writeFileSync(dest, readFileSync(src, "utf8"), "utf8");
+    if (existsSync(src)) writeFileSync(join(agentsDir, `${role}.md`), readFileSync(src, "utf8"), "utf8");
+  }
+
+  const jitRolesDir = join(posRoot, "jit-board", "roles");
+  if (existsSync(jitRolesDir)) {
+    for (const role of JIT_SEATS) {
+      const src = join(jitRolesDir, `${role}.md`);
+      if (existsSync(src)) writeFileSync(join(agentsDir, `${role}.md`), readFileSync(src, "utf8"), "utf8");
+    }
   }
 
   const hooksDir = join(cursorDir, "hooks");
@@ -73,7 +115,7 @@ export async function wireCursor({ home, routerPath, posRoot, repoRoot }) {
       `// Prompt OS session start — remind agent of router law
 export default async function sessionStart() {
   return {
-    message: "Prompt OS active. Read PROMPT-ROUTER.md + STATUS-LAW.md before substantive work.",
+    message: "Prompt OS active. Read PROMPT-ROUTER.md + STATUS-LAW.md + jit-board/SUBAGENT-LAW.md before substantive work. Use /letscook.",
   };
 }
 `,
